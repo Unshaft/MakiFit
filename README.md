@@ -1,73 +1,90 @@
-# React + TypeScript + Vite
+# MakiFit
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application PWA de motivation sportive pour couple. Marianne + Killian = Maki.
 
-Currently, two official plugins are available:
+## Concept
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Une app qui donne envie de bouger, pas qui culpabilise. Chaque partenaire a son profil personnalisé et gagne des points pour débloquer des récompenses IRL ensemble.
 
-## React Compiler
+## Fonctionnalités
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Profils personnalisés** : Marianne (remise en forme) et Killian (performance badminton)
+- **Séances adaptées** : Exercices générés selon le profil, l'énergie et le temps disponible
+- **Activités externes** : Logger ses sports hors app (badminton, marche, yoga...)
+- **Streak flexible** : Pas de culpabilisation, focus sur la régularité
+- **Récompenses couple** : Points communs pour débloquer apéro, resto, weekend...
+- **PWA** : Installation sur iPhone comme une app native
 
-## Expanding the ESLint configuration
+## Stack technique
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| Technologie | Usage |
+|-------------|-------|
+| React 19 + TypeScript | Frontend |
+| Vite | Build tool |
+| TailwindCSS v4 | Styling |
+| Supabase | Base de données PostgreSQL |
+| vite-plugin-pwa | Progressive Web App |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+```bash
+# Cloner le repo
+git clone https://github.com/USERNAME/MakiFit.git
+cd MakiFit
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Installer les dépendances
+npm install
+
+# Configurer les variables d'environnement
+cp .env.example .env.local
+# Éditer .env.local avec vos clés Supabase
+
+# Lancer en développement
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Configuration Supabase
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. Créer un projet sur [supabase.com](https://supabase.com)
+2. Exécuter le schéma SQL dans `supabase/schema.sql`
+3. Copier l'URL et la clé anon dans `.env.local`
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Scripts
+
+```bash
+npm run dev      # Serveur de développement
+npm run build    # Build production
+npm run preview  # Preview du build
+npm run lint     # Linting ESLint
 ```
+
+## Structure du projet
+
+```
+src/
+├── components/     # Composants UI réutilisables
+├── pages/          # Pages de l'application
+├── hooks/          # Hooks personnalisés (Supabase)
+├── data/           # Données statiques (exercices)
+├── lib/            # Configuration (Supabase client)
+└── types/          # Types TypeScript
+```
+
+## Palette de couleurs
+
+| Couleur | Hex | Usage |
+|---------|-----|-------|
+| Primary | `#FF6B35` | Orange énergique |
+| Secondary | `#FFD23F` | Jaune soleil |
+| Accent | `#EE4266` | Rose punch |
+| Dark | `#1A1A2E` | Fond sombre |
+| Success | `#4ADE80` | Validation |
+
+## Installation PWA (iPhone)
+
+1. Ouvrir l'app dans Safari
+2. Bouton partage → "Sur l'écran d'accueil"
+
+---
+
+Fait avec Claude Code
