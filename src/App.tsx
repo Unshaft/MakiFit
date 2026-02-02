@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ProfileSelect, Dashboard, LogActivity } from './pages';
+import { WorkoutPage } from './pages/Workout';
 
 function App() {
   return (
@@ -9,8 +10,8 @@ function App() {
           <Route path="/" element={<ProfileSelect />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/log-activity" element={<LogActivity />} />
+          <Route path="/workout/new" element={<WorkoutPage />} />
           {/* À venir */}
-          <Route path="/workout/new" element={<ComingSoon title="Nouvelle séance" />} />
           <Route path="/history" element={<ComingSoon title="Historique" />} />
           <Route path="/rewards" element={<ComingSoon title="Récompenses" />} />
         </Routes>
