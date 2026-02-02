@@ -92,14 +92,15 @@ export function LogActivity() {
       {/* Header */}
       <header className="p-6 pb-4">
         <button
+          type="button"
           onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-text-muted mb-4"
+          className="flex items-center gap-2 text-text-muted mb-4 touch-feedback active:text-white"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Retour</span>
         </button>
-        <h1 className="text-2xl font-bold text-white">J'ai fait du sport</h1>
-        <p className="text-text-muted mt-1">Quelle activité as-tu faite ?</p>
+        <h1 className="text-2xl font-bold text-white animate-fade-in">J'ai fait du sport</h1>
+        <p className="text-text-muted mt-1 animate-fade-in" style={{ animationDelay: '0.05s' }}>Quelle activité as-tu faite ?</p>
       </header>
 
       {/* Activities */}
@@ -109,10 +110,10 @@ export function LogActivity() {
             key={activity.id}
             onClick={() => setSelectedActivity(activity.id)}
             className={`
-              cursor-pointer transition-all animate-fade-in
+              cursor-pointer transition-all animate-fade-in touch-feedback
               ${selectedActivity === activity.id
                 ? 'ring-2 ring-primary bg-dark-light'
-                : 'hover:bg-dark-light'
+                : 'active:bg-dark-light'
               }
             `}
             style={{ animationDelay: `${index * 0.05}s` } as React.CSSProperties}
@@ -136,7 +137,7 @@ export function LogActivity() {
       </div>
 
       {/* Action Button */}
-      <div className="fixed bottom-6 left-6 right-6">
+      <div className="fixed bottom-20 left-6 right-6 safe-area-bottom">
         <Button
           fullWidth
           size="lg"

@@ -62,8 +62,9 @@ export function Dashboard() {
             <h1 className="text-2xl font-bold text-white">{currentUser.name}</h1>
           </div>
           <button
+            type="button"
             onClick={() => navigate('/')}
-            className="w-12 h-12 bg-surface rounded-full flex items-center justify-center"
+            className="w-12 h-12 bg-surface rounded-full flex items-center justify-center touch-feedback active:bg-dark-light"
           >
             <User className="w-6 h-6 text-text-muted" />
           </button>
@@ -183,8 +184,9 @@ export function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-white">Cette semaine</h2>
           <button
+            type="button"
             onClick={() => navigate('/history')}
-            className="text-primary text-sm flex items-center gap-1"
+            className="text-primary text-sm flex items-center gap-1 touch-feedback active:opacity-70"
           >
             Voir tout <ChevronRight className="w-4 h-4" />
           </button>
