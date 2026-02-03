@@ -103,6 +103,15 @@ html {
   overscroll-behavior: none;
 }
 
+/* Full screen fixed layout for workout screens (no scroll) */
+.fixed-screen {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 /* Smooth page transitions */
 @keyframes slide-in-right {
   from { opacity: 0; transform: translateX(20px); }

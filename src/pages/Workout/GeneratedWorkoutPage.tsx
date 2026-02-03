@@ -260,7 +260,7 @@ export function GeneratedWorkoutPage() {
 
   if (!workout || !currentProfile) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="fixed-screen items-center justify-center">
         <div className="animate-pulse text-primary text-xl">Chargement...</div>
       </div>
     );
@@ -269,7 +269,7 @@ export function GeneratedWorkoutPage() {
   // Quit confirmation
   if (showQuitConfirm) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="fixed-screen items-center justify-center p-6">
         <Card className="max-w-sm w-full animate-fade-in">
           <h2 className="text-xl font-bold text-white mb-2">Quitter la séance ?</h2>
           <p className="text-text-muted mb-6">Ta progression ne sera pas sauvegardée.</p>
@@ -295,7 +295,7 @@ export function GeneratedWorkoutPage() {
     );
 
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6">
+      <div className="fixed-screen items-center justify-center p-6">
         <div className="w-24 h-24 bg-success rounded-full flex items-center justify-center mb-6 animate-bounce-in">
           <Check className="w-12 h-12 text-white" />
         </div>
@@ -390,7 +390,7 @@ export function GeneratedWorkoutPage() {
     const nextExercise = workout.exercises[currentExerciseIndex];
 
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="fixed-screen">
         <header className="p-6 pb-4 flex items-center justify-between">
           <span className="text-text-muted font-mono">{formatTime(elapsedTimer.seconds)}</span>
           <button type="button" onClick={() => setShowQuitConfirm(true)} className="text-text-muted">
@@ -422,7 +422,7 @@ export function GeneratedWorkoutPage() {
   const isPaused = phase === 'paused';
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="fixed-screen">
       <header className="p-6 pb-4 flex items-center justify-between">
         <span className="text-text-muted font-mono">{formatTime(elapsedTimer.seconds)}</span>
         <button type="button" onClick={() => setShowQuitConfirm(true)} className="text-text-muted">
