@@ -40,14 +40,25 @@ export function useAI() {
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Erreur lors de la génération');
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || `Erreur serveur (${response.status})`);
       }
 
       const workout: GeneratedWorkout = await response.json();
       return workout;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur inconnue';
+      let message = 'Erreur inconnue';
+
+      if (err instanceof Error) {
+        if (err.name === 'TypeError' && err.message.includes('fetch')) {
+          message = 'Pas de connexion internet. Vérifie ta connexion et réessaie.';
+        } else if (err.message.includes('Failed to fetch')) {
+          message = 'Impossible de contacter le serveur. Vérifie ta connexion.';
+        } else {
+          message = err.message;
+        }
+      }
+
       setError(message);
       return null;
     } finally {

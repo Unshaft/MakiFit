@@ -43,10 +43,10 @@ export default async function handler(req: Request) {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'API key not configured' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ error: 'Clé API non configurée. Contacte le développeur.' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 
   try {
@@ -70,7 +70,7 @@ La séance doit contenir 4-6 exercices adaptés.`;
 
     const content = message.content[0];
     if (content.type !== 'text') {
-      throw new Error('Unexpected response type');
+      throw new Error('FORMAT_ERROR');
     }
 
     // Parse le JSON de la réponse
@@ -82,12 +82,34 @@ La séance doit contenir 4-6 exercices adaptés.`;
     });
   } catch (error) {
     console.error('Error generating workout:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to generate workout' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
+
+    // Détermine le type d'erreur pour un message approprié
+    let errorMessage = 'Impossible de générer la séance. Réessaie dans quelques instants.';
+    let statusCode = 500;
+
+    if (error instanceof Error) {
+      if (error.message.includes('401') || error.message.includes('authentication')) {
+        errorMessage = 'Clé API invalide ou expirée. Contacte le développeur.';
+        statusCode = 401;
+      } else if (error.message.includes('429') || error.message.includes('rate')) {
+        errorMessage = 'Trop de requêtes. Attends quelques secondes et réessaie.';
+        statusCode = 429;
+      } else if (error.message.includes('timeout') || error.message.includes('ETIMEDOUT')) {
+        errorMessage = 'Le serveur met trop de temps à répondre. Réessaie.';
+        statusCode = 504;
+      } else if (error.message === 'FORMAT_ERROR') {
+        errorMessage = 'Erreur de format dans la réponse. Réessaie.';
+      } else if (error.message.includes('JSON')) {
+        errorMessage = 'Erreur de parsing. Réessaie.';
+      } else if (error.message.includes('insufficient') || error.message.includes('credit')) {
+        errorMessage = 'Crédit API épuisé. Contacte le développeur.';
+        statusCode = 402;
       }
+    }
+
+    return new Response(
+      JSON.stringify({ error: errorMessage }),
+      { status: statusCode, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }

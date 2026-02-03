@@ -396,7 +396,7 @@ export function GeneratedWorkoutPage() {
           </p>
           <p className="text-text-muted text-sm mt-1">Set {currentSetIndex + 1} / {nextExercise.sets}</p>
         </div>
-        <div className="px-6 pb-8">
+        <div className="px-6 pb-28">
           <Button variant="outline" fullWidth onClick={() => setPhase('exercising')}>
             Passer le repos
           </Button>
@@ -449,7 +449,7 @@ export function GeneratedWorkoutPage() {
         <p className="text-text-muted mt-6">Set {currentSetIndex + 1} / {currentExercise?.sets}</p>
       </div>
 
-      <div className="px-6 pb-8">
+      <div className="px-6 pb-28">
         <div className="flex items-center justify-center gap-8">
           <button type="button" onClick={skipExercise} className="text-text-muted touch-feedback">
             <SkipForward className="w-8 h-8" />
