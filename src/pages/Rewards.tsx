@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Gift, Lock, Check, Trophy, Sparkles } from 'lucide-react';
+import { Gift, Lock, Check, Trophy, Sparkles, Plus, X } from 'lucide-react';
 import { Card, Button, ProgressBar } from '../components';
 import { useCoupleStats, useRewards } from '../hooks/useSupabase';
 import type { UserProfile } from '../types';
@@ -17,9 +17,12 @@ export function Rewards() {
   const navigate = useNavigate();
   const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
   const [unlocking, setUnlocking] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newReward, setNewReward] = useState({ name: '', description: '', points_required: 100 });
+  const [adding, setAdding] = useState(false);
 
   const { stats } = useCoupleStats();
-  const { rewards, unlockReward, refetch } = useRewards();
+  const { rewards, unlockReward, addReward, refetch } = useRewards();
 
   useEffect(() => {
     const savedProfile = localStorage.getItem('makifit_current_profile') as UserProfile | null;
@@ -42,6 +45,21 @@ export function Rewards() {
     }
   };
 
+  const handleAddReward = async () => {
+    if (!newReward.name.trim() || !newReward.description.trim()) return;
+
+    setAdding(true);
+    try {
+      await addReward(newReward);
+      setShowAddModal(false);
+      setNewReward({ name: '', description: '', points_required: 100 });
+    } catch (error) {
+      console.error('Error adding reward:', error);
+    } finally {
+      setAdding(false);
+    }
+  };
+
   if (!currentProfile || !stats) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -57,13 +75,97 @@ export function Rewards() {
   return (
     <div className="min-h-screen pb-28">
       <header className="p-6 pb-4">
-        <h1 className="text-2xl font-bold text-white animate-fade-in">
-          Récompenses
-        </h1>
-        <p className="text-text-muted animate-fade-in" style={{ animationDelay: '0.05s' }}>
-          Vos objectifs couple
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white animate-fade-in">
+              Récompenses
+            </h1>
+            <p className="text-text-muted animate-fade-in" style={{ animationDelay: '0.05s' }}>
+              Vos objectifs couple
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowAddModal(true)}
+            className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center touch-feedback animate-fade-in"
+            aria-label="Ajouter une récompense"
+          >
+            <Plus className="w-5 h-5 text-white" />
+          </button>
+        </div>
       </header>
+
+      {/* Modal ajout récompense */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-6 animate-fade-in">
+          <div className="bg-dark-light rounded-3xl w-full max-w-sm p-6 animate-bounce-in">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white">Nouvelle récompense</h2>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className="text-text-muted touch-feedback"
+                aria-label="Fermer"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-text-muted text-sm mb-2">Nom</label>
+                <input
+                  type="text"
+                  value={newReward.name}
+                  onChange={(e) => setNewReward(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Ex: Restaurant japonais"
+                  className="w-full bg-surface text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-text-muted text-sm mb-2">Description</label>
+                <input
+                  type="text"
+                  value={newReward.description}
+                  onChange={(e) => setNewReward(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Ex: Un bon resto ensemble"
+                  className="w-full bg-surface text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="points-input" className="block text-text-muted text-sm mb-2">Points requis</label>
+                <input
+                  id="points-input"
+                  type="number"
+                  value={newReward.points_required}
+                  onChange={(e) => setNewReward(prev => ({ ...prev, points_required: Math.max(1, parseInt(e.target.value) || 0) }))}
+                  min={1}
+                  className="w-full bg-surface text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <Button
+                variant="outline"
+                fullWidth
+                onClick={() => setShowAddModal(false)}
+              >
+                Annuler
+              </Button>
+              <Button
+                fullWidth
+                onClick={handleAddReward}
+                disabled={adding || !newReward.name.trim() || !newReward.description.trim()}
+              >
+                {adding ? 'Ajout...' : 'Ajouter'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="px-6 space-y-6">
         {/* Points couple */}

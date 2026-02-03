@@ -204,10 +204,21 @@ export function useRewards() {
     return { error };
   };
 
+  const addReward = async (reward: { name: string; description: string; points_required: number }) => {
+    const { data, error } = await supabase
+      .from('rewards')
+      .insert(reward)
+      .select()
+      .single();
+
+    if (!error) await fetchRewards();
+    return { data: data as Reward | null, error };
+  };
+
   const getNextReward = (currentPoints: number) =>
     rewards.find(r => !r.unlocked_at && r.points_required > currentPoints);
 
-  return { rewards, loading, unlockReward, getNextReward, refetch: fetchRewards };
+  return { rewards, loading, unlockReward, addReward, getNextReward, refetch: fetchRewards };
 }
 
 export function useCoupleStats() {
