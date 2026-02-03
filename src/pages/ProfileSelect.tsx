@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { Dumbbell } from 'lucide-react';
 import { useUsers } from '../hooks/useSupabase';
 
 export function ProfileSelect() {
@@ -14,7 +13,11 @@ export function ProfileSelect() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-primary text-xl">Chargement...</div>
+        <img
+          src="/web-app-manifest-192x192.png"
+          alt="MakiFit"
+          className="w-24 h-24 animate-pulse"
+        />
       </div>
     );
   }
@@ -25,10 +28,12 @@ export function ProfileSelect() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6">
       {/* Logo */}
-      <div className="mb-12 text-center animate-bounce-in">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-primary rounded-3xl mb-4 animate-pulse-glow">
-          <Dumbbell className="w-10 h-10 text-white" />
-        </div>
+      <div className="mb-10 text-center animate-bounce-in">
+        <img
+          src="/web-app-manifest-192x192.png"
+          alt="MakiFit"
+          className="w-28 h-28 mx-auto mb-4 drop-shadow-lg"
+        />
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           MakiFit
         </h1>
