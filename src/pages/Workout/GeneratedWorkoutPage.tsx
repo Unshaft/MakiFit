@@ -403,14 +403,14 @@ export function GeneratedWorkoutPage() {
         </header>
 
         {/* Progress bar */}
-        <div className="px-5 pb-4">
+        <div className="px-5 mb-4">
           <ProgressBar value={progress} max={100} color="primary" size="sm" />
         </div>
 
-        {/* Zone centrale - Repos */}
-        <div className="flex-1 flex flex-col items-center justify-center px-5">
+        {/* Contenu repos */}
+        <div className="flex flex-col items-center px-5">
           <p className="text-secondary font-semibold text-lg mb-2">Repos</p>
-          <div className="text-8xl font-bold text-white mb-8 animate-pulse leading-none">{restTimer.seconds}</div>
+          <div className="text-8xl font-bold text-white mb-6 animate-pulse leading-none">{restTimer.seconds}</div>
 
           {/* Prochain exercice */}
           <div className="bg-surface rounded-2xl p-4 w-full max-w-xs text-center">
@@ -420,8 +420,11 @@ export function GeneratedWorkoutPage() {
           </div>
         </div>
 
+        {/* Spacer flexible */}
+        <div className="flex-1 min-h-8" />
+
         {/* Bouton skip */}
-        <div className="px-5 pb-6 safe-area-bottom">
+        <div className="px-5 pb-8 safe-area-bottom">
           <Button variant="outline" fullWidth size="lg" onClick={() => setPhase('exercising')}>
             Passer le repos
           </Button>
@@ -448,24 +451,23 @@ export function GeneratedWorkoutPage() {
       </header>
 
       {/* Progress bar */}
-      <div className="px-5 pb-4">
+      <div className="px-5 mb-4">
         <ProgressBar value={progress} max={100} color="primary" size="sm" />
-        <p className="text-text-muted text-xs mt-2 text-center">
-          Exercice {currentExerciseIndex + 1} sur {totalExercises}
-        </p>
       </div>
 
-      {/* Zone centrale - Timer/Reps dominant */}
-      <div className="flex-1 flex flex-col items-center justify-center px-5">
-        {/* Nom de l'exercice */}
+      {/* Contenu exercice */}
+      <div className="flex flex-col items-center px-5">
+        <p className="text-text-muted text-xs mb-1">
+          Exercice {currentExerciseIndex + 1} sur {totalExercises}
+        </p>
         <h1 className="text-2xl font-bold text-white mb-1 text-center">{currentExercise?.name}</h1>
-        <p className="text-text-muted text-sm mb-6 text-center">{currentExercise?.description}</p>
+        <p className="text-text-muted text-sm mb-4 text-center">{currentExercise?.description}</p>
 
-        {/* Timer ou Reps - élément principal */}
+        {/* Timer ou Reps */}
         {isDurationBased ? (
           <CircularProgress
             progress={(exerciseTimer.seconds / (currentExercise?.duration || 30)) * 100}
-            size={220}
+            size={200}
             color={isPaused ? 'secondary' : 'primary'}
           >
             <span className={`text-6xl font-bold ${isPaused ? 'text-secondary' : 'text-white'}`}>
@@ -480,15 +482,18 @@ export function GeneratedWorkoutPage() {
         )}
 
         {/* Set indicator */}
-        <div className="mt-6 px-4 py-2 bg-surface rounded-full">
+        <div className="mt-4 px-4 py-2 bg-surface rounded-full">
           <p className="text-white font-medium">
             Set <span className="text-primary">{currentSetIndex + 1}</span> / {currentExercise?.sets}
           </p>
         </div>
       </div>
 
-      {/* Contrôles en bas */}
-      <div className="px-5 pb-6 safe-area-bottom">
+      {/* Spacer flexible */}
+      <div className="flex-1 min-h-8" />
+
+      {/* Contrôles */}
+      <div className="px-5 pb-8 safe-area-bottom">
         <div className="flex items-center justify-center gap-6">
           <button
             type="button"
