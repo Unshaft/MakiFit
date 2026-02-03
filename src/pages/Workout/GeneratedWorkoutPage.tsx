@@ -391,25 +391,38 @@ export function GeneratedWorkoutPage() {
 
     return (
       <div className="fixed-screen">
-        <header className="p-6 pb-4 flex items-center justify-between">
-          <span className="text-text-muted font-mono">{formatTime(elapsedTimer.seconds)}</span>
-          <button type="button" onClick={() => setShowQuitConfirm(true)} className="text-text-muted">
-            <X className="w-6 h-6" />
+        {/* Header compact */}
+        <header className="px-5 pt-4 pb-2 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-text-muted">
+            <Clock className="w-4 h-4" />
+            <span className="font-mono text-sm">{formatTime(elapsedTimer.seconds)}</span>
+          </div>
+          <button type="button" onClick={() => setShowQuitConfirm(true)} className="p-2 -mr-2 text-text-muted">
+            <X className="w-5 h-5" />
           </button>
         </header>
-        <div className="px-6 mb-6">
+
+        {/* Progress bar */}
+        <div className="px-5 pb-4">
           <ProgressBar value={progress} max={100} color="primary" size="sm" />
         </div>
-        <div className="flex-1 flex flex-col items-center pt-8 px-6">
-          <p className="text-text-muted mb-2">Repos</p>
-          <div className="text-7xl font-bold text-secondary mb-8 animate-pulse">{restTimer.seconds}</div>
-          <p className="text-text-muted text-center">
-            Prochain : <span className="text-white font-semibold">{nextExercise.name}</span>
-          </p>
-          <p className="text-text-muted text-sm mt-1">Set {currentSetIndex + 1} / {nextExercise.sets}</p>
+
+        {/* Zone centrale - Repos */}
+        <div className="flex-1 flex flex-col items-center justify-center px-5">
+          <p className="text-secondary font-semibold text-lg mb-2">Repos</p>
+          <div className="text-8xl font-bold text-white mb-8 animate-pulse leading-none">{restTimer.seconds}</div>
+
+          {/* Prochain exercice */}
+          <div className="bg-surface rounded-2xl p-4 w-full max-w-xs text-center">
+            <p className="text-text-muted text-sm mb-1">Prochain exercice</p>
+            <p className="text-white font-semibold text-lg">{nextExercise.name}</p>
+            <p className="text-text-muted text-sm mt-1">Set {currentSetIndex + 1} / {nextExercise.sets}</p>
+          </div>
         </div>
-        <div className="px-6 pb-8 safe-area-bottom">
-          <Button variant="outline" fullWidth onClick={() => setPhase('exercising')}>
+
+        {/* Bouton skip */}
+        <div className="px-5 pb-6 safe-area-bottom">
+          <Button variant="outline" fullWidth size="lg" onClick={() => setPhase('exercising')}>
             Passer le repos
           </Button>
         </div>
@@ -423,54 +436,73 @@ export function GeneratedWorkoutPage() {
 
   return (
     <div className="fixed-screen">
-      <header className="p-6 pb-4 flex items-center justify-between">
-        <span className="text-text-muted font-mono">{formatTime(elapsedTimer.seconds)}</span>
-        <button type="button" onClick={() => setShowQuitConfirm(true)} className="text-text-muted">
-          <X className="w-6 h-6" />
+      {/* Header compact */}
+      <header className="px-5 pt-4 pb-2 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-text-muted">
+          <Clock className="w-4 h-4" />
+          <span className="font-mono text-sm">{formatTime(elapsedTimer.seconds)}</span>
+        </div>
+        <button type="button" onClick={() => setShowQuitConfirm(true)} className="p-2 -mr-2 text-text-muted">
+          <X className="w-5 h-5" />
         </button>
       </header>
-      <div className="px-6 mb-6">
-        <ProgressBar value={progress} max={100} color="primary" size="sm" />
-      </div>
-      <div className="flex-1 flex flex-col items-center pt-4 px-6">
-        <p className="text-text-muted mb-2">
-          Exercice {currentExerciseIndex + 1} / {totalExercises}
-        </p>
-        <h1 className="text-3xl font-bold text-white mb-2 text-center">{currentExercise?.name}</h1>
-        <p className="text-text-muted text-sm text-center max-w-xs">{currentExercise?.description}</p>
 
+      {/* Progress bar */}
+      <div className="px-5 pb-4">
+        <ProgressBar value={progress} max={100} color="primary" size="sm" />
+        <p className="text-text-muted text-xs mt-2 text-center">
+          Exercice {currentExerciseIndex + 1} sur {totalExercises}
+        </p>
+      </div>
+
+      {/* Zone centrale - Timer/Reps dominant */}
+      <div className="flex-1 flex flex-col items-center justify-center px-5">
+        {/* Nom de l'exercice */}
+        <h1 className="text-2xl font-bold text-white mb-1 text-center">{currentExercise?.name}</h1>
+        <p className="text-text-muted text-sm mb-6 text-center">{currentExercise?.description}</p>
+
+        {/* Timer ou Reps - élément principal */}
         {isDurationBased ? (
-          <div className="mt-8">
-            <CircularProgress
-              progress={(exerciseTimer.seconds / (currentExercise?.duration || 30)) * 100}
-              size={200}
-              color={isPaused ? 'secondary' : 'primary'}
-            >
-              <span className={`text-5xl font-bold ${isPaused ? 'text-secondary' : 'text-white'}`}>
-                {exerciseTimer.seconds}
-              </span>
-            </CircularProgress>
-          </div>
+          <CircularProgress
+            progress={(exerciseTimer.seconds / (currentExercise?.duration || 30)) * 100}
+            size={220}
+            color={isPaused ? 'secondary' : 'primary'}
+          >
+            <span className={`text-6xl font-bold ${isPaused ? 'text-secondary' : 'text-white'}`}>
+              {exerciseTimer.seconds}
+            </span>
+          </CircularProgress>
         ) : (
-          <div className="text-center mt-8">
-            <p className="text-7xl font-bold text-white">{currentExercise?.reps}</p>
-            <p className="text-text-muted mt-2">répétitions</p>
+          <div className="text-center">
+            <p className="text-8xl font-bold text-white leading-none">{currentExercise?.reps}</p>
+            <p className="text-text-muted text-lg mt-2">répétitions</p>
           </div>
         )}
 
-        <p className="text-text-muted mt-6">Set {currentSetIndex + 1} / {currentExercise?.sets}</p>
+        {/* Set indicator */}
+        <div className="mt-6 px-4 py-2 bg-surface rounded-full">
+          <p className="text-white font-medium">
+            Set <span className="text-primary">{currentSetIndex + 1}</span> / {currentExercise?.sets}
+          </p>
+        </div>
       </div>
 
-      <div className="px-6 pb-8 safe-area-bottom">
-        <div className="flex items-center justify-center gap-8">
-          <button type="button" onClick={skipExercise} className="text-text-muted touch-feedback">
-            <SkipForward className="w-8 h-8" />
+      {/* Contrôles en bas */}
+      <div className="px-5 pb-6 safe-area-bottom">
+        <div className="flex items-center justify-center gap-6">
+          <button
+            type="button"
+            onClick={skipExercise}
+            className="w-14 h-14 rounded-full bg-surface flex items-center justify-center touch-feedback"
+          >
+            <SkipForward className="w-6 h-6 text-text-muted" />
           </button>
+
           {isDurationBased ? (
             <button
               type="button"
               onClick={togglePause}
-              className="w-20 h-20 rounded-full bg-primary flex items-center justify-center touch-feedback"
+              className="w-20 h-20 rounded-full bg-primary flex items-center justify-center touch-feedback shadow-lg"
             >
               {isPaused ? <Play className="w-10 h-10 text-white ml-1" /> : <Pause className="w-10 h-10 text-white" />}
             </button>
@@ -478,12 +510,13 @@ export function GeneratedWorkoutPage() {
             <button
               type="button"
               onClick={completeSet}
-              className="w-20 h-20 rounded-full bg-success flex items-center justify-center touch-feedback"
+              className="w-20 h-20 rounded-full bg-success flex items-center justify-center touch-feedback shadow-lg"
             >
               <Check className="w-10 h-10 text-white" />
             </button>
           )}
-          <div className="w-8" /> {/* Spacer */}
+
+          <div className="w-14 h-14" /> {/* Spacer pour équilibrer */}
         </div>
       </div>
     </div>
