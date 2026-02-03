@@ -316,7 +316,7 @@ export function GeneratedWorkoutPage() {
   // Preview screen
   if (phase === 'preview') {
     return (
-      <div className="min-h-screen pb-24">
+      <div className="min-h-screen pb-28">
         <header className="p-6 pb-4">
           <button
             type="button"
@@ -360,7 +360,7 @@ export function GeneratedWorkoutPage() {
           ))}
         </div>
 
-        <div className="fixed bottom-20 left-6 right-6 safe-area-bottom">
+        <div className="fixed bottom-24 left-6 right-6 safe-area-bottom">
           <Button fullWidth size="lg" onClick={startWorkout}>
             <div className="flex items-center justify-center gap-3">
               <Play className="w-5 h-5" />

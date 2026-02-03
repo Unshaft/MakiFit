@@ -85,7 +85,7 @@ export function History() {
   }
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-28">
       <header className="p-6 pb-4">
         <button
           type="button"

@@ -53,7 +53,7 @@ export function Dashboard() {
     : `Salut ${currentUser.name}, on va chercher ce R5 !`;
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-28">
       {/* Header */}
       <header className="p-6 pb-4">
         <div className="flex items-center justify-between">

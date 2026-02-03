@@ -55,7 +55,7 @@ export function Rewards() {
   const nextReward = lockedRewards[0];
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-28">
       <header className="p-6 pb-4">
         <h1 className="text-2xl font-bold text-white animate-fade-in">
           Récompenses

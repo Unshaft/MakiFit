@@ -69,7 +69,7 @@ export function GenerateWorkout() {
   }
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-28">
       <header className="p-6 pb-4">
         <button
           type="button"
@@ -203,7 +203,7 @@ export function GenerateWorkout() {
       </div>
 
       {/* Generate Button */}
-      <div className="fixed bottom-20 left-6 right-6 safe-area-bottom">
+      <div className="fixed bottom-24 left-6 right-6 safe-area-bottom">
         <Button
           fullWidth
           size="lg"

@@ -88,7 +88,7 @@ export function LogActivity() {
   }
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-28">
       {/* Header */}
       <header className="p-6 pb-4">
         <button
@@ -137,7 +137,7 @@ export function LogActivity() {
       </div>
 
       {/* Action Button */}
-      <div className="fixed bottom-20 left-6 right-6 safe-area-bottom">
+      <div className="fixed bottom-24 left-6 right-6 safe-area-bottom">
         <Button
           fullWidth
           size="lg"
