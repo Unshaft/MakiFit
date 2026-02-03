@@ -7,10 +7,12 @@ import {
   Activity,
   ChevronRight,
   Sparkles,
-  User
+  User,
+  Settings
 } from 'lucide-react';
 import { Card, Button, ProgressBar } from '../components';
 import { useUsers, useCoupleStats, useRewards, useSessions, useExternalActivities } from '../hooks/useSupabase';
+import { useNotifications } from '../hooks/useNotifications';
 
 type Profile = 'marianne' | 'killian';
 
@@ -25,6 +27,7 @@ export function Dashboard() {
   const currentUser = currentProfile ? getUserByProfile(currentProfile) : null;
   const { sessions } = useSessions(currentUser?.id);
   useExternalActivities(currentUser?.id); // Préchargement pour la page LogActivity
+  const { checkStreakAlert } = useNotifications();
 
   const otherProfile: Profile = currentProfile === 'marianne' ? 'killian' : 'marianne';
   const otherUser = getUserByProfile(otherProfile);
@@ -37,6 +40,14 @@ export function Dashboard() {
     }
     setCurrentProfile(savedProfile);
   }, [navigate]);
+
+  // Check streak alert when user data is loaded
+  useEffect(() => {
+    if (currentUser && sessions.length > 0) {
+      const lastSession = sessions[0]; // sessions are sorted by date desc
+      checkStreakAlert(currentUser.streak, lastSession?.date || null);
+    }
+  }, [currentUser, sessions, checkStreakAlert]);
 
   if (!currentUser || !stats) {
     return (
@@ -61,13 +72,24 @@ export function Dashboard() {
             <p className="text-text-muted text-sm">Bonjour</p>
             <h1 className="text-2xl font-bold text-white">{currentUser.name}</h1>
           </div>
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="w-12 h-12 bg-surface rounded-full flex items-center justify-center touch-feedback active:bg-dark-light"
-          >
-            <User className="w-6 h-6 text-text-muted" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigate('/settings')}
+              aria-label="Paramètres"
+              className="w-10 h-10 bg-surface rounded-full flex items-center justify-center touch-feedback active:bg-dark-light"
+            >
+              <Settings className="w-5 h-5 text-text-muted" />
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              aria-label="Changer de profil"
+              className="w-10 h-10 bg-surface rounded-full flex items-center justify-center touch-feedback active:bg-dark-light"
+            >
+              <User className="w-5 h-5 text-text-muted" />
+            </button>
+          </div>
         </div>
         <p className="text-primary font-medium mt-2 animate-fade-in" style={{ animationDelay: '0.1s' }}>
           {greeting}

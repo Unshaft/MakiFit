@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ProfileSelect, Dashboard, LogActivity, History, Rewards, GenerateWorkout } from './pages';
+import { ProfileSelect, Dashboard, LogActivity, History, Rewards, GenerateWorkout, Settings } from './pages';
 import { WorkoutPage, GeneratedWorkoutPage } from './pages/Workout';
 import { BottomNav } from './components';
 
@@ -16,6 +16,7 @@ function App() {
           <Route path="/workout/generated" element={<GeneratedWorkoutPage />} />
           <Route path="/history" element={<History />} />
           <Route path="/rewards" element={<Rewards />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
         <BottomNav />
       </div>

@@ -4,3 +4,4 @@ export { LogActivity } from './LogActivity';
 export { History } from './History';
 export { Rewards } from './Rewards';
 export { GenerateWorkout } from './GenerateWorkout';
+export { Settings } from './Settings';

@@ -11,30 +11,31 @@ interface GenerateRequest {
   mood?: string; // ex: "énergique", "doux", "intense"
 }
 
-const SYSTEM_PROMPT = `Tu es un coach fitness expert qui crée des séances d'entraînement personnalisées pour une app appelée MakiFit.
+const SYSTEM_PROMPT = `Tu es un coach fitness expert. Tu génères des séances d'entraînement en JSON UNIQUEMENT.
 
-Tu dois générer un workout structuré en JSON avec le format suivant:
-{
-  "name": "Nom de la séance",
-  "description": "Description courte",
-  "exercises": [
-    {
-      "name": "Nom de l'exercice",
-      "description": "Instructions courtes",
-      "sets": 3,
-      "reps": 12, // OU "duration": 30 (en secondes) pour les exercices en temps
-      "difficulty": "easy" | "medium" | "hard"
-    }
-  ]
-}
+TEMPLATE DE RÉPONSE (copie exactement cette structure):
+{"name":"Nom","description":"Description","exercises":[{"name":"Exercice","description":"Instructions","sets":3,"reps":12,"difficulty":"medium"}]}
 
-Règles importantes:
-- Les exercices doivent être réalisables à la maison sans équipement (ou avec haltères légers)
-- Adapte la difficulté au profil
-- Pour Marianne: séances douces, focus remise en forme et tonification
-- Pour Killian: séances plus intenses, focus explosivité et performance badminton
-- Inclus toujours un échauffement et des exercices variés
-- Réponds UNIQUEMENT avec le JSON, sans texte avant ou après`;
+RÈGLES STRICTES:
+1. Ta réponse doit être UNIQUEMENT du JSON valide
+2. PAS de texte avant ou après le JSON
+3. PAS de blocs markdown (\`\`\`)
+4. PAS de commentaires dans le JSON
+5. Utilise "reps" pour les répétitions OU "duration" (secondes) pour les exercices en temps - jamais les deux
+
+FORMAT DES EXERCICES:
+- name: nom court de l'exercice
+- description: instructions en 1-2 phrases
+- sets: nombre de séries (1-5)
+- reps: nombre de répétitions (si basé sur reps)
+- duration: durée en secondes (si basé sur temps, ex: planche)
+- difficulty: "easy" | "medium" | "hard"
+
+PROFILS:
+- Marianne: remise en forme douce, tonification, exercices accessibles
+- Killian: performance, explosivité badminton, intensité plus élevée
+
+Exercices réalisables à la maison sans équipement ou avec haltères légers.`;
 
 export default async function handler(req: Request) {
   if (req.method !== 'POST') {
@@ -55,11 +56,7 @@ export default async function handler(req: Request) {
 
     const client = new Anthropic({ apiKey });
 
-    const userPrompt = `Génère une séance de ${duration} minutes pour ${profile === 'marianne' ? 'Marianne (remise en forme, tonification douce)' : 'Killian (performance badminton, explosivité)'}.
-${focus ? `Focus: ${focus}` : ''}
-${mood ? `Ambiance souhaitée: ${mood}` : ''}
-
-La séance doit contenir 4-6 exercices adaptés.`;
+    const userPrompt = `Séance ${duration} min pour ${profile === 'marianne' ? 'Marianne' : 'Killian'}.${focus ? ` Focus: ${focus}.` : ''}${mood ? ` Mood: ${mood}.` : ''} 4-6 exercices. Réponds en JSON uniquement.`;
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -73,8 +70,27 @@ La séance doit contenir 4-6 exercices adaptés.`;
       throw new Error('FORMAT_ERROR');
     }
 
-    // Parse le JSON de la réponse
-    const workout = JSON.parse(content.text);
+    // Extrait le JSON de la réponse (gère les cas où Claude ajoute du texte ou des blocs markdown)
+    const extractJSON = (text: string): string => {
+      // Cas 1: bloc markdown ```json ... ```
+      const jsonBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonBlockMatch) {
+        return jsonBlockMatch[1].trim();
+      }
+
+      // Cas 2: trouver le premier { et le dernier }
+      const firstBrace = text.indexOf('{');
+      const lastBrace = text.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        return text.slice(firstBrace, lastBrace + 1);
+      }
+
+      // Cas 3: retourner le texte tel quel
+      return text.trim();
+    };
+
+    const jsonString = extractJSON(content.text);
+    const workout = JSON.parse(jsonString);
 
     return new Response(JSON.stringify(workout), {
       status: 200,
