@@ -162,7 +162,7 @@ export function WorkoutExecution({
         </div>
 
         {/* Skip rest button */}
-        <div className="px-6 pb-28">
+        <div className="px-6 pb-8 safe-area-bottom">
           <Button
             variant="outline"
             fullWidth
@@ -243,7 +243,7 @@ export function WorkoutExecution({
       </div>
 
       {/* Controls */}
-      <div className="px-6 pb-28">
+      <div className="px-6 pb-8 safe-area-bottom">
         <div className="flex items-center justify-center gap-8">
           <button
             onClick={actions.previousExercise}

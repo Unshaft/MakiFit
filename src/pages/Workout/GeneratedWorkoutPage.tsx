@@ -5,6 +5,7 @@ import { Button, Card, ProgressBar } from '../../components';
 import { CircularProgress } from '../../components/CircularProgress';
 import { useWorkoutTimer } from '../../hooks/useWorkoutTimer';
 import { useUsers, useSessions, useCoupleStats } from '../../hooks/useSupabase';
+import { useNav } from '../../contexts/NavContext';
 import type { UserProfile } from '../../types';
 
 const REST_DURATION = 30;
@@ -57,6 +58,17 @@ export function GeneratedWorkoutPage() {
   const [currentSetIndex, setCurrentSetIndex] = useState(0);
   const [completedSets, setCompletedSets] = useState<Map<number, number>>(new Map());
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+  const { hideNav, showNav } = useNav();
+
+  // Hide nav during active workout (not preview)
+  useEffect(() => {
+    if (phase !== 'preview') {
+      hideNav();
+    } else {
+      showNav();
+    }
+    return () => showNav();
+  }, [phase, hideNav, showNav]);
 
   const { getUserByProfile, updateUser } = useUsers();
   const currentUser = currentProfile ? getUserByProfile(currentProfile) : null;
@@ -396,7 +408,7 @@ export function GeneratedWorkoutPage() {
           </p>
           <p className="text-text-muted text-sm mt-1">Set {currentSetIndex + 1} / {nextExercise.sets}</p>
         </div>
-        <div className="px-6 pb-28">
+        <div className="px-6 pb-8 safe-area-bottom">
           <Button variant="outline" fullWidth onClick={() => setPhase('exercising')}>
             Passer le repos
           </Button>
@@ -449,7 +461,7 @@ export function GeneratedWorkoutPage() {
         <p className="text-text-muted mt-6">Set {currentSetIndex + 1} / {currentExercise?.sets}</p>
       </div>
 
-      <div className="px-6 pb-28">
+      <div className="px-6 pb-8 safe-area-bottom">
         <div className="flex items-center justify-center gap-8">
           <button type="button" onClick={skipExercise} className="text-text-muted touch-feedback">
             <SkipForward className="w-8 h-8" />

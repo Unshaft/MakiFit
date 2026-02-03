@@ -4,6 +4,7 @@ import { useWorkoutState } from '../../hooks/useWorkoutState';
 import { WorkoutSelection } from './WorkoutSelection';
 import { WorkoutExecution } from './WorkoutExecution';
 import { WorkoutComplete } from './WorkoutComplete';
+import { useNav } from '../../contexts/NavContext';
 import type { UserProfile } from '../../types';
 
 export function WorkoutPage() {
@@ -11,6 +12,18 @@ export function WorkoutPage() {
   const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const { state, actions, getTotalCompletedSets, getTotalSets, isAllCompleted } = useWorkoutState();
+  const { hideNav, showNav } = useNav();
+
+  // Hide/show nav based on phase
+  useEffect(() => {
+    const isActive = state.phase === 'exercising' || state.phase === 'resting' || state.phase === 'paused' || state.phase === 'completed';
+    if (isActive) {
+      hideNav();
+    } else {
+      showNav();
+    }
+    return () => showNav(); // Show nav when unmounting
+  }, [state.phase, hideNav, showNav]);
 
   // Profile check
   useEffect(() => {

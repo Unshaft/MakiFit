@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Dumbbell, Calendar, Gift } from 'lucide-react';
+import { useNav } from '../contexts/NavContext';
 
 interface NavItem {
   path: string;
@@ -17,9 +18,10 @@ const navItems: NavItem[] = [
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isNavVisible } = useNav();
 
-  // Hide on profile select page
-  if (location.pathname === '/') {
+  // Hide on profile select page or when nav is explicitly hidden
+  if (location.pathname === '/' || !isNavVisible) {
     return null;
   }
 
