@@ -400,7 +400,7 @@ export function GeneratedWorkoutPage() {
         <div className="px-6 mb-6">
           <ProgressBar value={progress} max={100} color="primary" size="sm" />
         </div>
-        <div className="flex-1 flex flex-col items-center justify-center px-6">
+        <div className="flex-1 flex flex-col items-center pt-8 px-6">
           <p className="text-text-muted mb-2">Repos</p>
           <div className="text-7xl font-bold text-secondary mb-8 animate-pulse">{restTimer.seconds}</div>
           <p className="text-text-muted text-center">
@@ -432,7 +432,7 @@ export function GeneratedWorkoutPage() {
       <div className="px-6 mb-6">
         <ProgressBar value={progress} max={100} color="primary" size="sm" />
       </div>
-      <div className="flex-1 flex flex-col items-center justify-center px-6">
+      <div className="flex-1 flex flex-col items-center pt-4 px-6">
         <p className="text-text-muted mb-2">
           Exercice {currentExerciseIndex + 1} / {totalExercises}
         </p>
