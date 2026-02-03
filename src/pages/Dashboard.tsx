@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Flame,
@@ -10,7 +10,7 @@ import {
   User,
   Settings
 } from 'lucide-react';
-import { Card, Button, ProgressBar } from '../components';
+import { Card, Button, ProgressBar, PullToRefresh } from '../components';
 import { useUsers, useCoupleStats, useRewards, useSessions, useExternalActivities } from '../hooks/useSupabase';
 import { useNotifications } from '../hooks/useNotifications';
 
@@ -20,14 +20,23 @@ export function Dashboard() {
   const navigate = useNavigate();
   const [currentProfile, setCurrentProfile] = useState<Profile | null>(null);
 
-  const { getUserByProfile } = useUsers();
-  const { stats } = useCoupleStats();
-  const { getNextReward } = useRewards();
+  const { getUserByProfile, refetch: refetchUsers } = useUsers();
+  const { stats, refetch: refetchStats } = useCoupleStats();
+  const { getNextReward, refetch: refetchRewards } = useRewards();
 
   const currentUser = currentProfile ? getUserByProfile(currentProfile) : null;
-  const { sessions } = useSessions(currentUser?.id);
+  const { sessions, refetch: refetchSessions } = useSessions(currentUser?.id);
   useExternalActivities(currentUser?.id); // Préchargement pour la page LogActivity
   const { checkStreakAlert } = useNotifications();
+
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([
+      refetchUsers(),
+      refetchStats(),
+      refetchRewards(),
+      refetchSessions(),
+    ]);
+  }, [refetchUsers, refetchStats, refetchRewards, refetchSessions]);
 
   const otherProfile: Profile = currentProfile === 'marianne' ? 'killian' : 'marianne';
   const otherUser = getUserByProfile(otherProfile);
@@ -64,7 +73,7 @@ export function Dashboard() {
     : `Salut ${currentUser.name}, on va chercher ce R5 !`;
 
   return (
-    <div className="min-h-screen pb-28">
+    <PullToRefresh onRefresh={handleRefresh} className="min-h-screen pb-28">
       {/* Header */}
       <header className="p-6 pb-4">
         <div className="flex items-center justify-between">
@@ -252,6 +261,6 @@ export function Dashboard() {
           </Card>
         </div>
       </div>
-    </div>
+    </PullToRefresh>
   );
 }
