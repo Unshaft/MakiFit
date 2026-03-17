@@ -38,6 +38,13 @@ export function Dashboard() {
     }
   }, [currentUser, sessions, checkStreakAlert]);
 
+  const weekSessions = useMemo(() => {
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    weekAgo.setHours(0, 0, 0, 0);
+    return sessions.filter(s => new Date(s.date) >= weekAgo);
+  }, [sessions]);
+
   if (!currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -47,12 +54,6 @@ export function Dashboard() {
   }
 
   const nextReward = stats ? getNextReward(stats.total_points) : null;
-  const weekSessions = useMemo(() => {
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    weekAgo.setHours(0, 0, 0, 0);
-    return sessions.filter(s => new Date(s.date) >= weekAgo);
-  }, [sessions]);
 
   return (
     <PullToRefresh onRefresh={handleRefresh} className="min-h-screen pb-28">

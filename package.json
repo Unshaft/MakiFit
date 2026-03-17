@@ -17,6 +17,10 @@
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0"
   },
+  "overrides": {
+    "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.4.15",
+    "source-map": "^0.7.4"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@tailwindcss/vite": "^4.1.18",
