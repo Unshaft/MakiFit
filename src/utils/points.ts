@@ -8,6 +8,8 @@ const DIFFICULTY_POINTS: Record<Exercise['difficulty'], number> = {
 
 const COMPLETION_BONUS = 5;
 
+export const EXTERNAL_ACTIVITY_POINTS = { personal: 10, couple: 5 } as const;
+
 export function calculateExercisePoints(exercise: Exercise, completedSets: number): number {
   const pointsPerSet = DIFFICULTY_POINTS[exercise.difficulty];
   return pointsPerSet * completedSets;

@@ -4,8 +4,10 @@ import { Play, Pause, SkipForward, X, Check, Clock } from 'lucide-react';
 import { Button, ProgressBar } from '../../components';
 import { CircularProgress } from '../../components/CircularProgress';
 import { useWorkoutTimer } from '../../hooks/useWorkoutTimer';
+import { useWakeLock } from '../../hooks/useWakeLock';
 import { useUsers, useSessions, useCoupleStats } from '../../hooks/useSupabase';
 import { useNav } from '../../contexts/NavContext';
+import { calculateNewStreak } from '../../utils/streak';
 import type { UserProfile } from '../../types';
 
 const REST_DURATION = 30;
@@ -64,9 +66,12 @@ export function GeneratedWorkoutPage() {
     return () => showNav();
   }, [phase, hideNav, showNav]);
 
+  const isPaused = phase === 'paused';
+  useWakeLock(phase === 'exercising' || phase === 'resting');
+
   const { getUserByProfile, updateUser } = useUsers();
   const currentUser = currentProfile ? getUserByProfile(currentProfile) : null;
-  const { addSession } = useSessions(currentUser?.id);
+  const { sessions, addSession } = useSessions(currentUser?.id);
   const { addCouplePoints } = useCoupleStats();
 
   const elapsedTimer = useWorkoutTimer({ initialSeconds: 0, mode: 'countup', autoStart: false });
@@ -132,9 +137,11 @@ export function GeneratedWorkoutPage() {
     if (phase !== 'completed' || !currentUser || !workout) return;
     const save = async () => {
       const points = calcPoints(workout.exercises, completedSets, getTotalCompletedSets() === getTotalSets());
+      const lastDate = sessions[0]?.date ?? null;
+      const newStreak = calculateNewStreak(currentUser.streak, lastDate);
       try {
         await addSession({ user_id: currentUser.id, date: new Date().toISOString().split('T')[0], type: 'duofit', workout_name: `IA: ${workout.name}`, duration: Math.max(1, Math.floor(elapsedTimer.seconds / 60)), points_earned: points.personal });
-        await updateUser(currentUser.id, { points: currentUser.points + points.personal, streak: currentUser.streak + 1 });
+        await updateUser(currentUser.id, { points: currentUser.points + points.personal, streak: newStreak });
         await addCouplePoints(points.couple);
       } catch (error) { console.error('Error saving workout:', error); }
       localStorage.removeItem('makifit_generated_workout');
@@ -271,7 +278,6 @@ export function GeneratedWorkoutPage() {
 
   // Exercise screen
   const progress = (getTotalCompletedSets() / getTotalSets()) * 100;
-  const isPaused = phase === 'paused';
   return (
     <div className="fixed-screen">
       <header className="px-6 pt-6 pb-3 flex items-center justify-between">

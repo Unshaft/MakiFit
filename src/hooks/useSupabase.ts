@@ -82,31 +82,47 @@ export function useUsers() {
       .eq('id', userId);
 
     if (!error) await fetchUsers();
+    else setError(error.message);
     return { error };
   };
 
   return { users, loading, error, getUserByProfile, updateUser, refetch: fetchUsers };
 }
 
+interface SessionInsert {
+  user_id: string;
+  date: string;
+  type: 'duofit' | 'external';
+  workout_name: string;
+  duration: number;
+  points_earned?: number;
+}
+
 export function useSessions(userId?: string) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [mutating, setMutating] = useState(false);
 
-  const fetchSessions = useCallback(async () => {
-    if (!userId) return;
+  const fetchSessions = useCallback(async (since?: string) => {
+    if (!userId) { setLoading(false); return; }
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      setError(null);
+      let query = supabase
         .from('sessions')
         .select('*')
         .eq('user_id', userId)
         .order('date', { ascending: false });
 
+      if (since) query = query.gte('date', since);
+
+      const { data, error } = await query;
       if (error) throw error;
       setSessions(data || []);
     } catch (err) {
-      console.error('Error fetching sessions:', err);
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
     } finally {
       setLoading(false);
     }
@@ -116,16 +132,8 @@ export function useSessions(userId?: string) {
     fetchSessions();
   }, [fetchSessions]);
 
-  interface SessionInsert {
-    user_id: string;
-    date: string;
-    type: 'duofit' | 'external';
-    workout_name: string;
-    duration: number;
-    points_earned?: number;
-  }
-
   const addSession = async (session: SessionInsert) => {
+    setMutating(true);
     const { data, error } = await supabase
       .from('sessions')
       .insert(session)
@@ -133,10 +141,11 @@ export function useSessions(userId?: string) {
       .single();
 
     if (!error) await fetchSessions();
+    setMutating(false);
     return { data: data as Session | null, error };
   };
 
-  return { sessions, loading, addSession, refetch: fetchSessions };
+  return { sessions, loading, error, mutating, addSession, refetch: fetchSessions };
 }
 
 export function useExternalActivities(userId?: string) {
@@ -172,10 +181,12 @@ export function useExternalActivities(userId?: string) {
 export function useRewards() {
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchRewards = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const { data, error } = await supabase
         .from('rewards')
         .select('*')
@@ -184,7 +195,7 @@ export function useRewards() {
       if (error) throw error;
       setRewards(data || []);
     } catch (err) {
-      console.error('Error fetching rewards:', err);
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
     } finally {
       setLoading(false);
     }
@@ -218,7 +229,7 @@ export function useRewards() {
   const getNextReward = (currentPoints: number) =>
     rewards.find(r => !r.unlocked_at && r.points_required > currentPoints);
 
-  return { rewards, loading, unlockReward, addReward, getNextReward, refetch: fetchRewards };
+  return { rewards, loading, error, unlockReward, addReward, getNextReward, refetch: fetchRewards };
 }
 
 export function useCoupleStats() {
@@ -247,14 +258,25 @@ export function useCoupleStats() {
   }, [fetchStats]);
 
   const addCouplePoints = async (points: number) => {
-    if (!stats) return { error: new Error('No stats found') };
+    // On refetch juste avant l'update pour réduire la fenêtre de race condition.
+    // Solution définitive : créer une RPC Supabase `increment_couple_points(amount int)`
+    // qui fait UPDATE couple_stats SET total_points = total_points + amount atomiquement.
+    const { data: latest, error: fetchError } = await supabase
+      .from('couple_stats')
+      .select('*')
+      .single();
+
+    if (fetchError || !latest) return { error: fetchError || new Error('No stats found') };
 
     const { error } = await supabase
       .from('couple_stats')
-      .update({ total_points: stats.total_points + points })
-      .eq('id', stats.id);
+      .update({ total_points: latest.total_points + points })
+      .eq('id', latest.id);
 
-    if (!error) await fetchStats();
+    if (!error) {
+      setStats({ ...latest, total_points: latest.total_points + points });
+      await fetchStats();
+    }
     return { error };
   };
 

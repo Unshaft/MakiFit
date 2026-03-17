@@ -3,6 +3,7 @@ import { Play, Pause, SkipForward, SkipBack, X, Check } from 'lucide-react';
 import { Button, ProgressBar } from '../../components';
 import { CircularProgress } from '../../components/CircularProgress';
 import { useWorkoutTimer } from '../../hooks/useWorkoutTimer';
+import { useWakeLock } from '../../hooks/useWakeLock';
 import type { WorkoutState } from '../../hooks/useWorkoutState';
 
 const REST_DURATION = 30;
@@ -36,6 +37,8 @@ export function WorkoutExecution({ state, actions, totalCompletedSets, totalSets
   const exerciseDuration = currentExercise.duration || 0;
   const isPaused = state.phase === 'paused';
   const isResting = state.phase === 'resting';
+
+  useWakeLock(!isPaused);
 
   const elapsedTimer = useWorkoutTimer({ initialSeconds: 0, mode: 'countup', autoStart: true });
 

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check } from 'lucide-react';
 import { Button } from '../components';
 import { useUsers, useExternalActivities, useSessions, useCoupleStats } from '../hooks/useSupabase';
+import { EXTERNAL_ACTIVITY_POINTS } from '../utils/points';
+import { calculateNewStreak } from '../utils/streak';
 
 type Profile = 'marianne' | 'killian';
 
@@ -16,7 +18,7 @@ export function LogActivity() {
   const { getUserByProfile, updateUser } = useUsers();
   const currentUser = currentProfile ? getUserByProfile(currentProfile) : null;
   const { activities } = useExternalActivities(currentUser?.id);
-  const { addSession } = useSessions(currentUser?.id);
+  const { sessions, addSession } = useSessions(currentUser?.id);
   const { addCouplePoints } = useCoupleStats();
 
   useEffect(() => {
@@ -31,10 +33,14 @@ export function LogActivity() {
     if (!activity) return;
 
     setLogging(true);
+    const today = new Date().toISOString().split('T')[0];
+    const lastDate = sessions[0]?.date ?? null;
+    const newStreak = calculateNewStreak(currentUser.streak, lastDate);
+
     try {
-      await addSession({ user_id: currentUser.id, date: new Date().toISOString().split('T')[0], type: 'external', workout_name: activity.name, duration: 60, points_earned: 10 });
-      await updateUser(currentUser.id, { points: currentUser.points + 10, streak: currentUser.streak + 1 });
-      await addCouplePoints(5);
+      await addSession({ user_id: currentUser.id, date: today, type: 'external', workout_name: activity.name, duration: 60, points_earned: EXTERNAL_ACTIVITY_POINTS.personal });
+      await updateUser(currentUser.id, { points: currentUser.points + EXTERNAL_ACTIVITY_POINTS.personal, streak: newStreak });
+      await addCouplePoints(EXTERNAL_ACTIVITY_POINTS.couple);
       setSuccess(true);
       setTimeout(() => navigate('/dashboard'), 1500);
     } catch (error) {
@@ -59,7 +65,7 @@ export function LogActivity() {
           <Check className="w-10 h-10 text-white" />
         </div>
         <h1 className="font-syne font-extrabold text-3xl text-(--ink) leading-hero animate-fade-in delay-2">Bien joué !</h1>
-        <p className="text-(--muted) mt-2 text-sm animate-fade-in delay-3">+10 points perso · +5 points couple</p>
+        <p className="text-(--muted) mt-2 text-sm animate-fade-in delay-3">+{EXTERNAL_ACTIVITY_POINTS.personal} points perso · +{EXTERNAL_ACTIVITY_POINTS.couple} points couple</p>
       </div>
     );
   }
@@ -101,7 +107,7 @@ export function LogActivity() {
                 {activity.name}
               </h3>
               <p className={`text-xs mt-0.5 ${selectedActivity === activity.id ? 'text-white/60' : 'text-(--muted)'}`}>
-                +10 pts perso · +5 pts couple
+                +{EXTERNAL_ACTIVITY_POINTS.personal} pts perso · +{EXTERNAL_ACTIVITY_POINTS.couple} pts couple
               </p>
             </div>
             {selectedActivity === activity.id && (

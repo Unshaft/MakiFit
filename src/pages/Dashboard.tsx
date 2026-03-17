@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Flame, Trophy, Plus, Activity, ChevronRight, Sparkles, User, Settings } from 'lucide-react';
 import { Button, ProgressBar, PullToRefresh } from '../components';
@@ -47,10 +47,12 @@ export function Dashboard() {
   }
 
   const nextReward = stats ? getNextReward(stats.total_points) : null;
-  const weekSessions = sessions.filter(s => {
-    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-    return new Date(s.date) >= weekAgo;
-  });
+  const weekSessions = useMemo(() => {
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    weekAgo.setHours(0, 0, 0, 0);
+    return sessions.filter(s => new Date(s.date) >= weekAgo);
+  }, [sessions]);
 
   return (
     <PullToRefresh onRefresh={handleRefresh} className="min-h-screen pb-28">
