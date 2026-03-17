@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check } from 'lucide-react';
-import { Card, Button } from '../components';
+import { Button } from '../components';
 import { useUsers, useExternalActivities, useSessions, useCoupleStats } from '../hooks/useSupabase';
 
 type Profile = 'marianne' | 'killian';
@@ -21,45 +21,22 @@ export function LogActivity() {
 
   useEffect(() => {
     const savedProfile = localStorage.getItem('makifit_current_profile') as Profile | null;
-    if (!savedProfile) {
-      navigate('/');
-      return;
-    }
+    if (!savedProfile) { navigate('/'); return; }
     setCurrentProfile(savedProfile);
   }, [navigate]);
 
   const handleLogActivity = async () => {
     if (!selectedActivity || !currentUser) return;
-
     const activity = activities.find(a => a.id === selectedActivity);
     if (!activity) return;
 
     setLogging(true);
-
     try {
-      // Add session
-      await addSession({
-        user_id: currentUser.id,
-        date: new Date().toISOString().split('T')[0],
-        type: 'external',
-        workout_name: activity.name,
-        duration: 60, // Default duration for external activities
-        points_earned: 10,
-      });
-
-      // Update user points
-      await updateUser(currentUser.id, {
-        points: currentUser.points + 10,
-        streak: currentUser.streak + 1,
-      });
-
-      // Add couple points
+      await addSession({ user_id: currentUser.id, date: new Date().toISOString().split('T')[0], type: 'external', workout_name: activity.name, duration: 60, points_earned: 10 });
+      await updateUser(currentUser.id, { points: currentUser.points + 10, streak: currentUser.streak + 1 });
       await addCouplePoints(5);
-
       setSuccess(true);
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1500);
+      setTimeout(() => navigate('/dashboard'), 1500);
     } catch (error) {
       console.error('Error logging activity:', error);
     } finally {
@@ -70,7 +47,7 @@ export function LogActivity() {
   if (!currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-primary text-xl">Chargement...</div>
+        <div className="w-6 h-6 border-2 border-(--ink) border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -78,72 +55,66 @@ export function LogActivity() {
   if (success) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6">
-        <div className="w-24 h-24 bg-success rounded-full flex items-center justify-center mb-6 animate-bounce-in">
-          <Check className="w-12 h-12 text-white" />
+        <div className="w-20 h-20 bg-(--success) rounded-full flex items-center justify-center mb-5 animate-fade-in">
+          <Check className="w-10 h-10 text-white" />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-2">Bien joué !</h1>
-        <p className="text-text-muted">+10 points perso, +5 points couple</p>
+        <h1 className="font-syne font-extrabold text-3xl text-(--ink) leading-hero animate-fade-in delay-2">Bien joué !</h1>
+        <p className="text-(--muted) mt-2 text-sm animate-fade-in delay-3">+10 points perso · +5 points couple</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen pb-28">
-      {/* Header */}
-      <header className="p-6 pb-4">
+      <header className="px-6 pt-6 pb-4">
         <button
           type="button"
           onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-text-muted mb-4 touch-feedback active:text-white"
+          className="flex items-center gap-2 text-(--muted) mb-5 touch-feedback"
         >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Retour</span>
+          <ArrowLeft className="w-4 h-4" />
+          <span className="text-sm">Retour</span>
         </button>
-        <h1 className="text-2xl font-bold text-white animate-fade-in">J'ai fait du sport</h1>
-        <p className="text-text-muted mt-1 animate-fade-in" style={{ animationDelay: '0.05s' }}>Quelle activité as-tu faite ?</p>
+        <h1 className="font-syne font-extrabold text-3xl text-(--ink) leading-hero animate-fade-in">J'ai fait du sport</h1>
+        <p className="text-(--muted) text-sm mt-1 animate-fade-in delay-1">Quelle activité as-tu faite ?</p>
       </header>
 
-      {/* Activities */}
-      <div className="px-6 space-y-3">
-        {activities.map((activity, index) => (
-          <Card
+      <div className="px-6 space-y-2.5">
+        {activities.map(activity => (
+          <button
+            type="button"
             key={activity.id}
             onClick={() => setSelectedActivity(activity.id)}
-            className={`
-              cursor-pointer transition-all animate-fade-in touch-feedback
-              ${selectedActivity === activity.id
-                ? 'ring-2 ring-primary bg-dark-light'
-                : 'active:bg-dark-light'
-              }
-            `}
-            style={{ animationDelay: `${index * 0.05}s` } as React.CSSProperties}
+            className={`w-full p-4 rounded-2xl text-left touch-feedback transition-all flex items-center gap-4 ${
+              selectedActivity === activity.id
+                ? 'bg-(--ink) border-[1.5px] border-(--ink)'
+                : 'bg-(--off)'
+            }`}
           >
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-surface rounded-2xl flex items-center justify-center text-2xl">
-                {activity.icon}
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-white">{activity.name}</h3>
-                <p className="text-text-muted text-sm">+10 pts perso, +5 pts couple</p>
-              </div>
-              {selectedActivity === activity.id && (
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <Check className="w-5 h-5 text-white" />
-                </div>
-              )}
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 ${
+              selectedActivity === activity.id ? 'bg-white/10' : 'bg-(--line)'
+            }`}>
+              {activity.icon}
             </div>
-          </Card>
+            <div className="flex-1">
+              <h3 className={`font-syne font-bold text-sm ${selectedActivity === activity.id ? 'text-white' : 'text-(--ink)'}`}>
+                {activity.name}
+              </h3>
+              <p className={`text-xs mt-0.5 ${selectedActivity === activity.id ? 'text-white/60' : 'text-(--muted)'}`}>
+                +10 pts perso · +5 pts couple
+              </p>
+            </div>
+            {selectedActivity === activity.id && (
+              <div className="w-6 h-6 bg-(--accent) rounded-full flex items-center justify-center shrink-0">
+                <Check className="w-3.5 h-3.5 text-(--ink)" />
+              </div>
+            )}
+          </button>
         ))}
       </div>
 
-      {/* Action Button */}
       <div className="fixed bottom-24 left-6 right-6 safe-area-bottom">
-        <Button
-          fullWidth
-          size="lg"
-          disabled={!selectedActivity || logging}
-          onClick={handleLogActivity}
-        >
+        <Button fullWidth size="lg" disabled={!selectedActivity || logging} onClick={handleLogActivity}>
           {logging ? 'Enregistrement...' : 'Valider'}
         </Button>
       </div>

@@ -11,53 +11,29 @@ export function SplashScreen({ onComplete, minDuration = 1500 }: SplashScreenPro
   useEffect(() => {
     const timer = setTimeout(() => {
       setFadeOut(true);
-      setTimeout(onComplete, 500); // Wait for fade animation
+      setTimeout(onComplete, 400);
     }, minDuration);
-
     return () => clearTimeout(timer);
   }, [onComplete, minDuration]);
 
   return (
-    <div
-      className={`
-        fixed inset-0 z-[100] bg-dark flex flex-col items-center justify-center
-        transition-opacity duration-500
-        ${fadeOut ? 'opacity-0' : 'opacity-100'}
-      `}
-    >
-      {/* Logo with bounce animation */}
-      <div className="animate-bounce-in">
-        <img
-          src="/web-app-manifest-192x192.png"
-          alt="MakiFit"
-          className="w-32 h-32 drop-shadow-2xl"
-        />
+    <div className={`fixed inset-0 z-100 bg-white flex flex-col items-center justify-center transition-opacity duration-400 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
+      <div className="animate-fade-in">
+        <img src="/web-app-manifest-192x192.png" alt="MakiFit" className="w-24 h-24 rounded-3xl" />
       </div>
 
-      {/* App name with fade in */}
-      <h1
-        className="text-4xl font-bold mt-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent animate-fade-in"
-        style={{ animationDelay: '0.3s' }}
-      >
+      <h1 className="font-syne font-extrabold text-4xl mt-6 text-(--ink) animate-fade-in delay-5 leading-hero">
         MakiFit
       </h1>
 
-      {/* Tagline */}
-      <p
-        className="text-text-muted mt-2 animate-fade-in"
-        style={{ animationDelay: '0.5s' }}
-      >
+      <p className="text-(--muted) mt-2 text-sm animate-fade-in delay-8">
         Bougez ensemble
       </p>
 
-      {/* Loading dots */}
-      <div
-        className="flex gap-2 mt-8 animate-fade-in"
-        style={{ animationDelay: '0.7s' }}
-      >
-        <span className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0s' }} />
-        <span className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-        <span className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+      <div className="flex gap-1.5 mt-10 animate-fade-in delay-10">
+        <span className="w-1.5 h-1.5 bg-(--ink) rounded-full animate-pulse" />
+        <span className="w-1.5 h-1.5 bg-(--ink) rounded-full animate-pulse delay-5" />
+        <span className="w-1.5 h-1.5 bg-(--ink) rounded-full animate-pulse delay-10" />
       </div>
     </div>
   );

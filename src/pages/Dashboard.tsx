@@ -1,16 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Flame,
-  Trophy,
-  Plus,
-  Activity,
-  ChevronRight,
-  Sparkles,
-  User,
-  Settings
-} from 'lucide-react';
-import { Card, Button, ProgressBar, PullToRefresh } from '../components';
+import { Flame, Trophy, Plus, Activity, ChevronRight, Sparkles, User, Settings } from 'lucide-react';
+import { Button, ProgressBar, PullToRefresh } from '../components';
 import { useUsers, useCoupleStats, useRewards, useSessions, useExternalActivities } from '../hooks/useSupabase';
 import { useNotifications } from '../hooks/useNotifications';
 
@@ -23,19 +14,13 @@ export function Dashboard() {
   const { getUserByProfile, refetch: refetchUsers } = useUsers();
   const { stats, refetch: refetchStats } = useCoupleStats();
   const { getNextReward, refetch: refetchRewards } = useRewards();
-
   const currentUser = currentProfile ? getUserByProfile(currentProfile) : null;
   const { sessions, refetch: refetchSessions } = useSessions(currentUser?.id);
-  useExternalActivities(currentUser?.id); // Préchargement pour la page LogActivity
+  useExternalActivities(currentUser?.id);
   const { checkStreakAlert } = useNotifications();
 
   const handleRefresh = useCallback(async () => {
-    await Promise.all([
-      refetchUsers(),
-      refetchStats(),
-      refetchRewards(),
-      refetchSessions(),
-    ]);
+    await Promise.all([refetchUsers(), refetchStats(), refetchRewards(), refetchSessions()]);
   }, [refetchUsers, refetchStats, refetchRewards, refetchSessions]);
 
   const otherProfile: Profile = currentProfile === 'marianne' ? 'killian' : 'marianne';
@@ -43,223 +28,174 @@ export function Dashboard() {
 
   useEffect(() => {
     const savedProfile = localStorage.getItem('makifit_current_profile') as Profile | null;
-    if (!savedProfile) {
-      navigate('/');
-      return;
-    }
+    if (!savedProfile) { navigate('/'); return; }
     setCurrentProfile(savedProfile);
   }, [navigate]);
 
-  // Check streak alert when user data is loaded
   useEffect(() => {
     if (currentUser && sessions.length > 0) {
-      const lastSession = sessions[0]; // sessions are sorted by date desc
-      checkStreakAlert(currentUser.streak, lastSession?.date || null);
+      checkStreakAlert(currentUser.streak, sessions[0]?.date || null);
     }
   }, [currentUser, sessions, checkStreakAlert]);
 
-  if (!currentUser || !stats) {
+  if (!currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-primary text-xl">Chargement...</div>
+        <div className="w-6 h-6 border-2 border-(--ink) border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  const nextReward = getNextReward(stats.total_points);
-
-  const greeting = currentProfile === 'marianne'
-    ? `Hey ${currentUser.name}, prête à bouger ?`
-    : `Salut ${currentUser.name}, on va chercher ce R5 !`;
+  const nextReward = stats ? getNextReward(stats.total_points) : null;
+  const weekSessions = sessions.filter(s => {
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+    return new Date(s.date) >= weekAgo;
+  });
 
   return (
     <PullToRefresh onRefresh={handleRefresh} className="min-h-screen pb-28">
       {/* Header */}
-      <header className="p-6 pb-4">
-        <div className="flex items-center justify-between">
-          <div className="animate-fade-in">
-            <p className="text-text-muted text-sm">Bonjour</p>
-            <h1 className="text-2xl font-bold text-white">{currentUser.name}</h1>
-          </div>
-          <div className="flex items-center gap-2">
+      <header className="px-6 pt-6 pb-5">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-(--muted) text-xs uppercase tracking-[2px] font-medium animate-fade-in">
+            {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </p>
+          <div className="flex gap-2">
             <button
               type="button"
               onClick={() => navigate('/settings')}
               aria-label="Paramètres"
-              className="w-10 h-10 bg-surface rounded-full flex items-center justify-center touch-feedback active:bg-dark-light"
+              className="w-9 h-9 bg-(--off) rounded-xl flex items-center justify-center touch-feedback"
             >
-              <Settings className="w-5 h-5 text-text-muted" />
+              <Settings className="w-4 h-4 text-(--muted)" />
             </button>
             <button
               type="button"
               onClick={() => navigate('/')}
               aria-label="Changer de profil"
-              className="w-10 h-10 bg-surface rounded-full flex items-center justify-center touch-feedback active:bg-dark-light"
+              className="w-9 h-9 bg-(--off) rounded-xl flex items-center justify-center touch-feedback"
             >
-              <User className="w-5 h-5 text-text-muted" />
+              <User className="w-4 h-4 text-(--muted)" />
             </button>
           </div>
         </div>
-        <p className="text-primary font-medium mt-2 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          {greeting}
-        </p>
+        <h1 className="font-syne font-extrabold text-3xl text-(--ink) leading-hero animate-fade-in delay-1">
+          {currentUser.name}
+        </h1>
       </header>
 
-      {/* Stats Cards */}
-      <div className="px-6 grid grid-cols-2 gap-4 mb-6">
-        {/* Streak */}
-        <Card className="animate-fade-in" style={{ animationDelay: '0.1s' } as React.CSSProperties}>
-          <div className="flex items-center gap-2 mb-2">
-            <Flame className="w-5 h-5 text-primary" />
-            <span className="text-text-muted text-sm">Streak</span>
-          </div>
-          <p className="text-3xl font-bold text-white">{currentUser.streak}</p>
-          <p className="text-text-muted text-sm">jours</p>
-        </Card>
-
-        {/* Points perso */}
-        <Card className="animate-fade-in" style={{ animationDelay: '0.15s' } as React.CSSProperties}>
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-secondary" />
-            <span className="text-text-muted text-sm">Mes points</span>
-          </div>
-          <p className="text-3xl font-bold text-white">{currentUser.points}</p>
-          <p className="text-text-muted text-sm">pts</p>
-        </Card>
-      </div>
-
-      {/* Couple Progress */}
-      <div className="px-6 mb-6">
-        <Card className="animate-fade-in" style={{ animationDelay: '0.2s' } as React.CSSProperties}>
+      {/* XP Card — seule card dark */}
+      <div className="px-6 mb-4 animate-fade-in delay-2">
+        <div className="bg-(--ink) rounded-2xl p-5">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-secondary" />
-              <span className="font-bold text-white">Points couple</span>
+            <div>
+              <p className="text-(--muted) text-[10px] uppercase tracking-[2px] font-medium">Points perso</p>
+              <p className="font-syne font-extrabold text-3xl text-white leading-hero mt-1">{currentUser.points}</p>
             </div>
-            <span className="text-2xl font-bold text-secondary">{stats.total_points}</span>
-          </div>
-
-          {nextReward && (
-            <>
-              <ProgressBar
-                value={stats.total_points}
-                max={nextReward.points_required}
-                color="secondary"
-                size="md"
-              />
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-text-muted text-sm">Prochaine récompense</span>
-                <span className="text-white font-medium">{nextReward.name}</span>
+            <div className="text-right">
+              <p className="text-(--muted) text-[10px] uppercase tracking-[2px] font-medium">Streak</p>
+              <div className="flex items-center gap-1.5 justify-end mt-1">
+                <Flame className="w-4 h-4 text-(--accent)" />
+                <p className="font-syne font-extrabold text-3xl text-(--accent) leading-hero">{currentUser.streak}</p>
               </div>
-            </>
-          )}
-        </Card>
+            </div>
+          </div>
+          <ProgressBar value={currentUser.points % 100} max={100} color="accent" />
+          <p className="text-(--muted) text-xs mt-2">
+            {100 - (currentUser.points % 100)} pts pour le niveau suivant
+          </p>
+        </div>
       </div>
 
-      {/* Activity of the other */}
-      {otherUser && (
-        <div className="px-6 mb-6">
-          <Card
-            className="bg-dark-light border border-surface animate-fade-in"
-            style={{ animationDelay: '0.25s' } as React.CSSProperties}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-surface rounded-full flex items-center justify-center">
-                {otherProfile === 'marianne' ? '💪' : '🏸'}
+      {/* Stats row */}
+      <div className="px-6 grid grid-cols-3 gap-2.5 mb-4 animate-fade-in delay-3">
+        <div className="bg-(--off) rounded-2xl p-4 text-center">
+          <p className="font-syne font-extrabold text-2xl text-(--ink)">{weekSessions.length}</p>
+          <p className="text-(--muted) text-xs mt-1">séances</p>
+        </div>
+        <div className="bg-(--off) rounded-2xl p-4 text-center">
+          <p className="font-syne font-extrabold text-2xl text-(--ink)">
+            {weekSessions.reduce((a, s) => a + s.duration, 0)}
+          </p>
+          <p className="text-(--muted) text-xs mt-1">minutes</p>
+        </div>
+        <div className="bg-(--off) rounded-2xl p-4 text-center">
+          <p className="font-syne font-extrabold text-2xl text-(--accent-dark)">
+            {weekSessions.reduce((a, s) => a + s.points_earned, 0)}
+          </p>
+          <p className="text-(--muted) text-xs mt-1">points</p>
+        </div>
+      </div>
+
+      {/* Couple progress */}
+      {stats && nextReward && (
+        <div className="px-6 mb-4 animate-fade-in delay-4">
+          <div className="bg-(--off) rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-(--warning)" />
+                <span className="text-(--muted) text-xs uppercase tracking-[2px] font-medium">Points couple</span>
               </div>
-              <div>
-                <p className="text-white font-medium">{otherUser.name}</p>
-                <p className="text-text-muted text-sm">
-                  {otherUser.streak > 0
-                    ? `🔥 ${otherUser.streak} jours de streak`
-                    : 'Pas encore de streak'}
-                </p>
-              </div>
+              <span className="font-syne font-extrabold text-xl text-(--ink)">{stats.total_points}</span>
             </div>
-          </Card>
+            <ProgressBar value={stats.total_points} max={nextReward.points_required} color="primary" />
+            <div className="flex items-center justify-between mt-2">
+              <span className="text-(--muted) text-xs">{nextReward.name}</span>
+              <span className="text-(--ink) text-xs font-medium">
+                {Math.max(0, nextReward.points_required - stats.total_points)} pts restants
+              </span>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="px-6 space-y-4">
-        <Button
-          fullWidth
-          size="lg"
-          onClick={() => navigate('/workout/new')}
-          className="animate-fade-in"
-          style={{ animationDelay: '0.3s' } as React.CSSProperties}
-        >
+      {/* Other profile */}
+      {otherUser && (
+        <div className="px-6 mb-5 animate-fade-in delay-5">
+          <div className="bg-(--off) rounded-2xl p-4 flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${otherProfile === 'marianne' ? 'bg-(--marianne)' : 'bg-(--ink)'}`}>
+              <span className={`font-syne font-bold text-base ${otherProfile === 'marianne' ? 'text-white' : 'text-(--accent)'}`}>
+                {otherProfile === 'marianne' ? 'M' : 'K'}
+              </span>
+            </div>
+            <div>
+              <p className="font-syne font-bold text-sm text-(--ink)">{otherUser.name}</p>
+              <p className="text-(--muted) text-xs">
+                {otherUser.streak > 0 ? `${otherUser.streak} jours de streak` : 'Pas encore de streak'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CTAs */}
+      <div className="px-6 space-y-3 animate-fade-in delay-6">
+        <Button fullWidth size="lg" onClick={() => navigate('/workout/new')}>
           <div className="flex items-center justify-center gap-3">
-            <Plus className="w-6 h-6" />
+            <Plus className="w-5 h-5" />
             <span>Nouvelle séance</span>
           </div>
         </Button>
 
-        <Button
-          variant="outline"
-          fullWidth
-          size="lg"
-          onClick={() => navigate('/log-activity')}
-          className="animate-fade-in"
-          style={{ animationDelay: '0.35s' } as React.CSSProperties}
-        >
+        <Button variant="outline" fullWidth size="lg" onClick={() => navigate('/log-activity')}>
           <div className="flex items-center justify-center gap-3">
-            <Activity className="w-6 h-6" />
+            <Activity className="w-5 h-5" />
             <span>J'ai fait du sport</span>
           </div>
         </Button>
       </div>
 
-      {/* Quick Stats */}
-      <div className="px-6 mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-white">Cette semaine</h2>
-          <button
-            type="button"
-            onClick={() => navigate('/history')}
-            className="text-primary text-sm flex items-center gap-1 touch-feedback active:opacity-70"
-          >
-            Voir tout <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-3 gap-3">
-          <Card className="text-center py-4 animate-fade-in" style={{ animationDelay: '0.4s' } as React.CSSProperties}>
-            <p className="text-2xl font-bold text-primary">
-              {sessions.filter(s => {
-                const sessionDate = new Date(s.date);
-                const weekAgo = new Date();
-                weekAgo.setDate(weekAgo.getDate() - 7);
-                return sessionDate >= weekAgo;
-              }).length}
-            </p>
-            <p className="text-text-muted text-xs mt-1">séances</p>
-          </Card>
-
-          <Card className="text-center py-4 animate-fade-in" style={{ animationDelay: '0.45s' } as React.CSSProperties}>
-            <p className="text-2xl font-bold text-secondary">
-              {sessions.filter(s => {
-                const sessionDate = new Date(s.date);
-                const weekAgo = new Date();
-                weekAgo.setDate(weekAgo.getDate() - 7);
-                return sessionDate >= weekAgo;
-              }).reduce((acc, s) => acc + s.duration, 0)}
-            </p>
-            <p className="text-text-muted text-xs mt-1">minutes</p>
-          </Card>
-
-          <Card className="text-center py-4 animate-fade-in" style={{ animationDelay: '0.5s' } as React.CSSProperties}>
-            <p className="text-2xl font-bold text-accent">
-              {sessions.filter(s => {
-                const sessionDate = new Date(s.date);
-                const weekAgo = new Date();
-                weekAgo.setDate(weekAgo.getDate() - 7);
-                return sessionDate >= weekAgo;
-              }).reduce((acc, s) => acc + s.points_earned, 0)}
-            </p>
-            <p className="text-text-muted text-xs mt-1">points</p>
-          </Card>
-        </div>
+      {/* Voir historique */}
+      <div className="px-6 mt-6 animate-fade-in delay-7">
+        <button
+          type="button"
+          onClick={() => navigate('/history')}
+          className="flex items-center gap-1 text-(--muted) text-sm touch-feedback"
+        >
+          <Sparkles className="w-4 h-4" />
+          Voir l'historique
+          <ChevronRight className="w-4 h-4" />
+        </button>
       </div>
     </PullToRefresh>
   );

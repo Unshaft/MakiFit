@@ -30,41 +30,22 @@ function formatTime(seconds: number): string {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-export function WorkoutExecution({
-  state,
-  actions,
-  totalCompletedSets,
-  totalSets,
-  onQuit,
-}: WorkoutExecutionProps) {
+export function WorkoutExecution({ state, actions, totalCompletedSets, totalSets, onQuit }: WorkoutExecutionProps) {
   const currentExercise = state.selectedWorkout!.exercises[state.currentExerciseIndex];
   const isDurationBased = !!currentExercise.duration;
   const exerciseDuration = currentExercise.duration || 0;
   const isPaused = state.phase === 'paused';
   const isResting = state.phase === 'resting';
 
-  // Elapsed time timer (countup)
-  const elapsedTimer = useWorkoutTimer({
-    initialSeconds: 0,
-    mode: 'countup',
-    autoStart: true,
-  });
+  const elapsedTimer = useWorkoutTimer({ initialSeconds: 0, mode: 'countup', autoStart: true });
 
-  // Pause elapsed timer when workout is paused
   useEffect(() => {
-    if (isPaused) {
-      elapsedTimer.pause();
-    } else if (state.phase === 'exercising' || state.phase === 'resting') {
-      elapsedTimer.resume();
-    }
+    if (isPaused) elapsedTimer.pause();
+    else if (state.phase === 'exercising' || state.phase === 'resting') elapsedTimer.resume();
   }, [isPaused, state.phase]);
 
-  // Update elapsed time in state
-  useEffect(() => {
-    actions.updateElapsedTime(elapsedTimer.seconds);
-  }, [elapsedTimer.seconds, actions]);
+  useEffect(() => { actions.updateElapsedTime(elapsedTimer.seconds); }, [elapsedTimer.seconds, actions]);
 
-  // Exercise timer (countdown for duration-based)
   const exerciseTimer = useWorkoutTimer({
     initialSeconds: exerciseDuration,
     mode: 'countdown',
@@ -72,104 +53,59 @@ export function WorkoutExecution({
     autoStart: isDurationBased && !isPaused && !isResting,
   });
 
-  // Rest timer
-  const restTimer = useWorkoutTimer({
-    initialSeconds: REST_DURATION,
-    mode: 'countdown',
-    onComplete: actions.endRest,
-    autoStart: false,
-  });
+  const restTimer = useWorkoutTimer({ initialSeconds: REST_DURATION, mode: 'countdown', onComplete: actions.endRest, autoStart: false });
 
-  // Start rest timer when entering rest phase
   useEffect(() => {
-    if (isResting) {
-      restTimer.reset(REST_DURATION);
-      restTimer.start();
-    }
+    if (isResting) { restTimer.reset(REST_DURATION); restTimer.start(); }
   }, [isResting]);
 
-  // Reset exercise timer when exercise changes
   useEffect(() => {
     if (isDurationBased) {
       exerciseTimer.reset(exerciseDuration);
-      if (!isPaused && !isResting) {
-        exerciseTimer.start();
-      }
+      if (!isPaused && !isResting) exerciseTimer.start();
     }
   }, [state.currentExerciseIndex, state.currentSetIndex]);
 
-  // Pause/resume exercise timer
   useEffect(() => {
     if (isDurationBased) {
-      if (isPaused || isResting) {
-        exerciseTimer.pause();
-      } else if (state.phase === 'exercising') {
-        exerciseTimer.resume();
-      }
+      if (isPaused || isResting) exerciseTimer.pause();
+      else if (state.phase === 'exercising') exerciseTimer.resume();
     }
   }, [isPaused, isResting, state.phase, isDurationBased]);
 
   const handlePauseResume = useCallback(() => {
-    if (isPaused) {
-      actions.resume();
-    } else {
-      actions.pause();
-    }
+    if (isPaused) actions.resume(); else actions.pause();
   }, [isPaused, actions]);
-
-  const handleCompleteReps = useCallback(() => {
-    actions.completeSet();
-  }, [actions]);
 
   const overallProgress = totalSets > 0 ? (totalCompletedSets / totalSets) * 100 : 0;
 
   // Rest screen
   if (isResting) {
-    const nextExerciseIndex = state.currentSetIndex === 0
-      ? state.currentExerciseIndex
-      : state.currentExerciseIndex;
-    const nextExercise = state.selectedWorkout!.exercises[nextExerciseIndex];
-
+    const nextExercise = state.selectedWorkout!.exercises[state.currentExerciseIndex];
     return (
-      <div className="min-h-screen flex flex-col">
-        {/* Header */}
-        <header className="p-6 pb-4 flex items-center justify-between">
-          <span className="text-text-muted font-mono">
-            {formatTime(elapsedTimer.seconds)}
-          </span>
-          <button onClick={onQuit} className="text-text-muted hover:text-white transition-colors">
-            <X className="w-6 h-6" />
+      <div className="min-h-screen flex flex-col bg-white">
+        <header className="px-6 pt-6 pb-3 flex items-center justify-between">
+          <span className="font-syne text-sm text-(--muted) tabular-nums">{formatTime(elapsedTimer.seconds)}</span>
+          <button type="button" onClick={onQuit} className="text-(--muted) touch-feedback" aria-label="Quitter">
+            <X className="w-5 h-5" />
           </button>
         </header>
-
-        {/* Progress bar */}
         <div className="px-6 mb-6">
           <ProgressBar value={overallProgress} max={100} color="primary" size="sm" />
         </div>
-
-        {/* Rest content */}
         <div className="flex-1 flex flex-col items-center justify-center px-6">
-          <p className="text-text-muted mb-2">Repos</p>
-          <div className="text-7xl font-bold text-secondary mb-8 animate-pulse">
+          <p className="text-(--muted) text-xs uppercase tracking-[2px] font-medium mb-3">Repos</p>
+          <p className="font-syne font-extrabold text-8xl text-(--ink) leading-none animate-rest-pulse">
             {restTimer.seconds}
+          </p>
+          <div className="mt-8 bg-(--off) rounded-2xl p-4 w-full max-w-xs text-center">
+            <p className="text-(--muted) text-xs uppercase tracking-[2px] font-medium mb-1">Prochain</p>
+            <p className="font-syne font-bold text-base text-(--ink)">{nextExercise.exercise.name}</p>
+            <p className="text-(--muted) text-xs mt-1">Set {state.currentSetIndex + 1} / {nextExercise.sets}</p>
           </div>
-          <p className="text-text-muted text-center">
-            Prochain : <span className="text-white font-semibold">{nextExercise.exercise.name}</span>
-          </p>
-          <p className="text-text-muted text-sm mt-1">
-            Set {state.currentSetIndex + 1} / {nextExercise.sets}
-          </p>
         </div>
-
-        {/* Skip rest button */}
-        <div className="px-6 pb-8 safe-area-bottom">
-          <Button
-            variant="outline"
-            fullWidth
-            onClick={actions.endRest}
-          >
-            Passer le repos
-          </Button>
+        <div className="px-6 pb-10 safe-area-bottom">
+          <Button variant="outline" fullWidth onClick={actions.endRest}>Passer le repos</Button>
         </div>
       </div>
     );
@@ -177,107 +113,92 @@ export function WorkoutExecution({
 
   // Exercise screen
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="p-6 pb-4 flex items-center justify-between">
-        <span className="text-text-muted font-mono">
-          {formatTime(elapsedTimer.seconds)}
-        </span>
-        <button onClick={onQuit} className="text-text-muted hover:text-white transition-colors">
-          <X className="w-6 h-6" />
+    <div className="min-h-screen flex flex-col bg-white">
+      <header className="px-6 pt-6 pb-3 flex items-center justify-between">
+        <span className="font-syne text-sm text-(--muted) tabular-nums">{formatTime(elapsedTimer.seconds)}</span>
+        <button type="button" onClick={onQuit} className="text-(--muted) touch-feedback" aria-label="Quitter">
+          <X className="w-5 h-5" />
         </button>
       </header>
-
-      {/* Progress bar */}
       <div className="px-6 mb-6">
         <ProgressBar value={overallProgress} max={100} color="primary" size="sm" />
       </div>
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6">
-        {/* Exercise info */}
         <div className="text-center mb-8">
-          <p className="text-text-muted mb-2">
+          <p className="text-(--muted) text-xs uppercase tracking-[2px] font-medium mb-2">
             Exercice {state.currentExerciseIndex + 1} / {state.selectedWorkout!.exercises.length}
           </p>
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="font-syne font-extrabold text-3xl text-(--ink) leading-hero mb-2">
             {currentExercise.exercise.name}
           </h1>
-          <p className="text-text-muted text-sm max-w-xs mx-auto">
-            {currentExercise.exercise.description}
-          </p>
+          <p className="text-(--muted) text-sm max-w-xs mx-auto">{currentExercise.exercise.description}</p>
           <div className="flex gap-2 justify-center mt-3 flex-wrap">
-            {currentExercise.exercise.muscleGroups.map((mg) => (
-              <span
-                key={mg}
-                className="px-2 py-1 bg-surface rounded-full text-xs text-text-muted"
-              >
-                {mg}
-              </span>
+            {currentExercise.exercise.muscleGroups.map(mg => (
+              <span key={mg} className="px-2.5 py-1 bg-(--off) rounded-full text-xs text-(--muted)">{mg}</span>
             ))}
           </div>
         </div>
 
-        {/* Timer or Rep counter */}
         {isDurationBased ? (
-          <CircularProgress
-            progress={(exerciseTimer.seconds / exerciseDuration) * 100}
-            size={200}
-            color={isPaused ? 'secondary' : 'primary'}
-          >
-            <span className={`text-5xl font-bold ${isPaused ? 'text-secondary' : 'text-white'}`}>
+          <CircularProgress progress={(exerciseTimer.seconds / exerciseDuration) * 100} size={200} color={isPaused ? 'secondary' : 'primary'}>
+            <span className={`font-syne font-extrabold text-5xl ${isPaused ? 'text-(--warning)' : 'text-(--ink)'}`}>
               {exerciseTimer.seconds}
             </span>
           </CircularProgress>
         ) : (
           <div className="text-center">
-            <p className="text-7xl font-bold text-white">{currentExercise.reps}</p>
-            <p className="text-text-muted mt-2">répétitions</p>
+            <p className="font-syne font-extrabold text-8xl text-(--ink) leading-none">{currentExercise.reps}</p>
+            <p className="text-(--muted) text-sm mt-2">répétitions</p>
           </div>
         )}
 
-        {/* Set indicator */}
-        <p className="text-text-muted mt-6">
-          Set {state.currentSetIndex + 1} / {currentExercise.sets}
-        </p>
+        <div className="mt-5 bg-(--off) rounded-full px-4 py-2">
+          <p className="font-syne text-sm text-(--ink)">
+            Set <span className="font-bold">{state.currentSetIndex + 1}</span> / {currentExercise.sets}
+          </p>
+        </div>
       </div>
 
-      {/* Controls */}
-      <div className="px-6 pb-8 safe-area-bottom">
+      <div className="px-6 pb-10 safe-area-bottom">
         <div className="flex items-center justify-center gap-8">
           <button
+            type="button"
             onClick={actions.previousExercise}
             disabled={state.currentExerciseIndex === 0 && state.currentSetIndex === 0}
-            className="text-text-muted hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="text-(--muted) touch-feedback disabled:opacity-30"
+            aria-label="Exercice précédent"
           >
-            <SkipBack className="w-8 h-8" />
+            <SkipBack className="w-7 h-7" />
           </button>
 
           {isDurationBased ? (
             <button
+              type="button"
               onClick={handlePauseResume}
-              className="w-20 h-20 rounded-full bg-primary hover:bg-primary-dark transition-colors flex items-center justify-center"
+              className="w-20 h-20 rounded-full bg-(--ink) flex items-center justify-center touch-feedback"
+              aria-label={isPaused ? 'Reprendre' : 'Pause'}
             >
-              {isPaused ? (
-                <Play className="w-10 h-10 text-white ml-1" />
-              ) : (
-                <Pause className="w-10 h-10 text-white" />
-              )}
+              {isPaused ? <Play className="w-9 h-9 text-white ml-1" /> : <Pause className="w-9 h-9 text-white" />}
             </button>
           ) : (
             <button
-              onClick={handleCompleteReps}
-              className="w-20 h-20 rounded-full bg-success hover:bg-green-600 transition-colors flex items-center justify-center"
+              type="button"
+              onClick={actions.completeSet}
+              className="w-20 h-20 rounded-full bg-(--success) flex items-center justify-center touch-feedback"
+              aria-label="Série terminée"
             >
-              <Check className="w-10 h-10 text-white" />
+              <Check className="w-9 h-9 text-white" />
             </button>
           )}
 
           <button
+            type="button"
             onClick={actions.skipExercise}
-            className="text-text-muted hover:text-white transition-colors"
+            className="text-(--muted) touch-feedback"
+            aria-label="Passer l'exercice"
           >
-            <SkipForward className="w-8 h-8" />
+            <SkipForward className="w-7 h-7" />
           </button>
         </div>
       </div>

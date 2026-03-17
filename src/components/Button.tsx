@@ -3,7 +3,7 @@ import { hapticLight } from '../utils/haptics';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   fullWidth?: boolean;
   haptic?: boolean;
@@ -21,25 +21,25 @@ export function Button({
   ...props
 }: ButtonProps) {
   const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
-    if (haptic && !disabled) {
-      hapticLight();
-    }
+    if (haptic && !disabled) hapticLight();
     onClick?.(e);
   };
-  const baseStyles = 'font-bold rounded-2xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed';
+
+  const baseStyles = 'font-syne font-bold rounded-xl transition-all duration-200 active:scale-[0.97] active:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variants = {
-    primary: 'bg-primary text-white hover:bg-primary-dark shadow-lg shadow-primary/30',
-    secondary: 'bg-secondary text-dark hover:brightness-110 shadow-lg shadow-secondary/30',
-    outline: 'border-2 border-primary text-primary hover:bg-primary hover:text-white',
-    ghost: 'text-text-muted hover:text-text hover:bg-surface',
+    primary:     'bg-(--ink) text-white',
+    secondary:   'bg-(--warning) text-(--ink)',
+    outline:     'border-[1.5px] border-(--ink) text-(--ink) bg-transparent',
+    ghost:       'text-(--muted)',
+    destructive: 'border-[1.5px] border-(--marianne) text-(--marianne) bg-transparent',
   };
 
   const sizes = {
     sm: 'px-4 py-2 text-sm',
-    md: 'px-6 py-3 text-base',
-    lg: 'px-8 py-4 text-lg',
-    xl: 'px-10 py-5 text-xl',
+    md: 'px-5 py-3 text-sm',
+    lg: 'px-6 py-4 text-base',
+    xl: 'px-8 py-5 text-lg',
   };
 
   return (

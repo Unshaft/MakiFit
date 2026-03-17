@@ -1,6 +1,5 @@
 import { ArrowLeft, Clock, Dumbbell, ChevronRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Card } from '../../components';
 import { getWorkoutsForProfile } from '../../data/exercises';
 import type { Workout, UserProfile } from '../../types';
 
@@ -10,21 +9,7 @@ interface WorkoutSelectionProps {
 }
 
 const categoryLabels: Record<string, string> = {
-  upper: 'Haut',
-  lower: 'Bas',
-  core: 'Core',
-  full: 'Full',
-  cardio: 'Cardio',
-  badminton: 'Badminton',
-};
-
-const categoryColors: Record<string, string> = {
-  upper: 'bg-accent',
-  lower: 'bg-primary',
-  core: 'bg-secondary text-dark',
-  full: 'bg-success',
-  cardio: 'bg-accent',
-  badminton: 'bg-primary',
+  upper: 'Haut', lower: 'Bas', core: 'Core', full: 'Full', cardio: 'Cardio', badminton: 'Bad',
 };
 
 export function WorkoutSelection({ profile, onSelect }: WorkoutSelectionProps) {
@@ -33,77 +18,71 @@ export function WorkoutSelection({ profile, onSelect }: WorkoutSelectionProps) {
 
   return (
     <div className="min-h-screen pb-28">
-      <header className="p-6 pb-4">
+      <header className="px-6 pt-6 pb-4">
         <button
           type="button"
           onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-text-muted mb-4 touch-feedback active:text-white transition-colors"
+          className="flex items-center gap-2 text-(--muted) mb-5 touch-feedback"
         >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Retour</span>
+          <ArrowLeft className="w-4 h-4" />
+          <span className="text-sm">Retour</span>
         </button>
-        <h1 className="text-2xl font-bold text-white animate-fade-in">
-          Nouvelle séance
-        </h1>
-        <p className="text-text-muted animate-fade-in" style={{ animationDelay: '0.05s' }}>
-          Choisis ton entraînement
-        </p>
+        <h1 className="font-syne font-extrabold text-3xl text-(--ink) leading-hero animate-fade-in">Nouvelle séance</h1>
+        <p className="text-(--muted) text-sm animate-fade-in delay-1">Choisis ton entraînement</p>
       </header>
 
-      <div className="px-6 space-y-4">
-        {/* AI Generation Card */}
-        <Card
+      <div className="px-6 space-y-3">
+        {/* IA */}
+        <button
+          type="button"
           onClick={() => navigate('/workout/generate')}
-          className="cursor-pointer animate-fade-in bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 touch-feedback"
-          style={{ animationDelay: '0.1s' }}
+          className="w-full bg-(--ink) rounded-2xl p-4 text-left touch-feedback animate-fade-in delay-2 flex items-center gap-4"
         >
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-bold text-white">Séance IA</h3>
-              <p className="text-text-muted text-sm">Génère une séance personnalisée avec Claude</p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-primary" />
+          <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 text-(--accent)" />
           </div>
-        </Card>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-syne font-bold text-base text-white">Séance IA</h3>
+            <p className="text-white/50 text-xs mt-0.5">Génère une séance personnalisée</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-white/40 shrink-0" />
+        </button>
 
-        <p className="text-text-muted text-xs uppercase tracking-wide">Séances prédéfinies</p>
+        <p className="text-(--muted) text-[10px] uppercase tracking-[2px] font-medium pt-1">Séances prédéfinies</p>
 
-        {workouts.map((workout, index) => (
-          <Card
+        {workouts.map((workout, index) => {
+          const delays = ['delay-3', 'delay-4', 'delay-5', 'delay-6', 'delay-7', 'delay-8', 'delay-9', 'delay-10'];
+          const delayClass = delays[index] ?? '';
+          return (
+          <button
+            type="button"
             key={workout.id}
             onClick={() => onSelect(workout)}
-            className="cursor-pointer animate-fade-in hover:bg-dark-light transition-colors"
-            style={{ animationDelay: `${0.2 + index * 0.05}s` }}
+            className={`w-full bg-(--off) rounded-2xl p-4 text-left touch-feedback animate-fade-in ${delayClass} flex items-center gap-4`}
           >
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-dark-light rounded-2xl flex items-center justify-center flex-shrink-0">
-                <Dumbbell className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-bold text-white truncate">{workout.name}</h3>
-                <p className="text-text-muted text-sm truncate">{workout.description}</p>
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="flex items-center gap-1 text-text-muted text-sm">
-                    <Clock className="w-4 h-4" />
-                    {workout.duration} min
-                  </span>
-                  <span className="text-text-muted text-sm">
-                    {workout.exercises.length} exercices
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${categoryColors[workout.category]}`}>
-                  {categoryLabels[workout.category]}
+            <div className="w-12 h-12 bg-(--line) rounded-xl flex items-center justify-center shrink-0">
+              <Dumbbell className="w-5 h-5 text-(--ink2)" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-syne font-bold text-sm text-(--ink) truncate">{workout.name}</h3>
+              <p className="text-(--muted) text-xs truncate mt-0.5">{workout.description}</p>
+              <div className="flex items-center gap-3 mt-1.5">
+                <span className="flex items-center gap-1 text-(--muted) text-xs">
+                  <Clock className="w-3.5 h-3.5" />
+                  {workout.duration} min
                 </span>
-                <ChevronRight className="w-5 h-5 text-text-muted" />
+                <span className="text-(--muted) text-xs">{workout.exercises.length} exercices</span>
               </div>
             </div>
-          </Card>
-        ))}
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="bg-(--ink) text-(--accent) px-2.5 py-1 rounded-full text-[10px] font-syne font-bold uppercase tracking-[1px]">
+                {categoryLabels[workout.category]}
+              </span>
+              <ChevronRight className="w-4 h-4 text-(--muted)" />
+            </div>
+          </button>
+          );
+        })}
       </div>
     </div>
   );

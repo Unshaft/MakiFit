@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar as CalendarIcon, Clock, Dumbbell, Star, Flame } from 'lucide-react';
-import { Card } from '../components';
+import { ArrowLeft, Calendar as CalendarIcon, Clock, Dumbbell, Flame } from 'lucide-react';
 import { Calendar } from '../components/Calendar';
 import { useUsers, useSessions } from '../hooks/useSupabase';
 import type { UserProfile } from '../types';
@@ -19,210 +18,149 @@ export function History() {
   const currentUser = currentProfile ? getUserByProfile(currentProfile) : null;
   const { sessions, loading } = useSessions(currentUser?.id);
 
-  // Profile check
   useEffect(() => {
     const savedProfile = localStorage.getItem('makifit_current_profile') as UserProfile | null;
-    if (!savedProfile) {
-      navigate('/');
-      return;
-    }
+    if (!savedProfile) { navigate('/'); return; }
     setCurrentProfile(savedProfile);
   }, [navigate]);
 
-  // Create set of active dates for calendar
   const activeDates = useMemo(() => {
     const dates = new Set<string>();
-    sessions.forEach((session) => {
-      dates.add(session.date);
-    });
+    sessions.forEach(s => dates.add(s.date));
     return dates;
   }, [sessions]);
 
-  // Filter sessions
   const filteredSessions = useMemo(() => {
     let filtered = sessions;
-
-    // Filter by type
-    if (filter !== 'all') {
-      filtered = filtered.filter((s) => s.type === filter);
-    }
-
-    // Filter by selected date
-    if (selectedDate) {
-      filtered = filtered.filter((s) => s.date === selectedDate);
-    }
-
+    if (filter !== 'all') filtered = filtered.filter(s => s.type === filter);
+    if (selectedDate) filtered = filtered.filter(s => s.date === selectedDate);
     return filtered;
   }, [sessions, filter, selectedDate]);
 
-  // Calculate stats
-  const stats = useMemo(() => {
-    const totalSessions = sessions.length;
-    const totalMinutes = sessions.reduce((acc, s) => acc + s.duration, 0);
-    const totalPoints = sessions.reduce((acc, s) => acc + s.points_earned, 0);
-    return { totalSessions, totalMinutes, totalPoints };
-  }, [sessions]);
+  const stats = useMemo(() => ({
+    totalSessions: sessions.length,
+    totalMinutes: sessions.reduce((acc, s) => acc + s.duration, 0),
+    totalPoints: sessions.reduce((acc, s) => acc + s.points_earned, 0),
+  }), [sessions]);
 
-  const handleDateSelect = (date: string) => {
-    setSelectedDate(selectedDate === date ? null : date);
-  };
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('fr-FR', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-    });
-  };
+  const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
   if (!currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-primary text-xl">Chargement...</div>
+        <div className="w-6 h-6 border-2 border-(--ink) border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen pb-28">
-      <header className="p-6 pb-4">
+      <header className="px-6 pt-6 pb-4">
         <button
           type="button"
           onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-text-muted mb-4 touch-feedback active:text-white transition-colors"
+          className="flex items-center gap-2 text-(--muted) mb-5 touch-feedback"
         >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Retour</span>
+          <ArrowLeft className="w-4 h-4" />
+          <span className="text-sm">Retour</span>
         </button>
-        <h1 className="text-2xl font-bold text-white animate-fade-in">
+        <h1 className="font-syne font-extrabold text-3xl text-(--ink) leading-hero animate-fade-in">
           Historique
         </h1>
-        <p className="text-text-muted animate-fade-in" style={{ animationDelay: '0.05s' }}>
-          Tes séances passées
-        </p>
+        <p className="text-(--muted) text-sm animate-fade-in delay-1">Tes séances passées</p>
       </header>
 
-      <div className="px-6 space-y-6">
-        {/* Stats summary */}
-        <div
-          className="grid grid-cols-3 gap-3 animate-fade-in"
-          style={{ animationDelay: '0.1s' }}
-        >
-          <Card className="text-center py-3">
-            <Flame className="w-5 h-5 text-primary mx-auto mb-1" />
-            <p className="text-xl font-bold text-white">{stats.totalSessions}</p>
-            <p className="text-text-muted text-xs">séances</p>
-          </Card>
-          <Card className="text-center py-3">
-            <Clock className="w-5 h-5 text-secondary mx-auto mb-1" />
-            <p className="text-xl font-bold text-white">{stats.totalMinutes}</p>
-            <p className="text-text-muted text-xs">minutes</p>
-          </Card>
-          <Card className="text-center py-3">
-            <Star className="w-5 h-5 text-accent mx-auto mb-1" />
-            <p className="text-xl font-bold text-white">{stats.totalPoints}</p>
-            <p className="text-text-muted text-xs">points</p>
-          </Card>
+      <div className="px-6 space-y-5">
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-2.5 animate-fade-in delay-2">
+          <div className="bg-(--off) rounded-2xl p-4 text-center">
+            <Flame className="w-4 h-4 text-(--warning) mx-auto mb-1.5" />
+            <p className="font-syne font-extrabold text-xl text-(--ink)">{stats.totalSessions}</p>
+            <p className="text-(--muted) text-xs mt-0.5">séances</p>
+          </div>
+          <div className="bg-(--off) rounded-2xl p-4 text-center">
+            <Clock className="w-4 h-4 text-(--muted) mx-auto mb-1.5" />
+            <p className="font-syne font-extrabold text-xl text-(--ink)">{stats.totalMinutes}</p>
+            <p className="text-(--muted) text-xs mt-0.5">minutes</p>
+          </div>
+          <div className="bg-(--off) rounded-2xl p-4 text-center">
+            <p className="font-syne font-extrabold text-xl text-(--accent-dark)">{stats.totalPoints}</p>
+            <p className="text-(--muted) text-xs mt-0.5">points</p>
+          </div>
         </div>
 
         {/* Calendar */}
-        <div className="animate-fade-in" style={{ animationDelay: '0.15s' }}>
+        <div className="animate-fade-in delay-3">
           <Calendar
             currentDate={currentMonth}
             onDateChange={setCurrentMonth}
             activeDates={activeDates}
-            onDateSelect={handleDateSelect}
+            onDateSelect={date => setSelectedDate(selectedDate === date ? null : date)}
             selectedDate={selectedDate}
           />
         </div>
 
         {/* Filters */}
-        <div
-          className="flex gap-2 animate-fade-in"
-          style={{ animationDelay: '0.2s' }}
-        >
-          {[
-            { key: 'all', label: 'Tout' },
-            { key: 'duofit', label: 'DuoFit' },
-            { key: 'external', label: 'Externe' },
-          ].map(({ key, label }) => (
+        <div className="flex gap-2 animate-fade-in delay-4">
+          {(['all', 'duofit', 'external'] as FilterType[]).map(key => (
             <button
               type="button"
               key={key}
-              onClick={() => setFilter(key as FilterType)}
-              className={`
-                px-4 py-2 rounded-xl text-sm font-medium transition-colors touch-feedback
-                ${filter === key
-                  ? 'bg-primary text-white'
-                  : 'bg-surface text-text-muted active:bg-dark-light'
-                }
-              `}
+              onClick={() => setFilter(key)}
+              className={`px-4 py-2 rounded-full text-xs font-medium transition-colors touch-feedback ${
+                filter === key
+                  ? 'bg-(--ink) text-white'
+                  : 'bg-(--off) text-(--muted)'
+              }`}
             >
-              {label}
+              {key === 'all' ? 'Tout' : key === 'duofit' ? 'DuoFit' : 'Externe'}
             </button>
           ))}
           {selectedDate && (
             <button
               type="button"
               onClick={() => setSelectedDate(null)}
-              className="px-4 py-2 rounded-xl text-sm font-medium bg-accent/20 text-accent active:bg-accent/30 transition-colors ml-auto touch-feedback"
+              className="px-4 py-2 rounded-full text-xs font-medium bg-(--accent) text-(--ink) touch-feedback ml-auto"
             >
-              Effacer filtre
+              Effacer
             </button>
           )}
         </div>
 
-        {/* Sessions list */}
-        <div className="space-y-3">
+        {/* Sessions */}
+        <div className="space-y-2.5">
           {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-pulse text-text-muted">Chargement...</div>
+            <div className="flex justify-center py-10">
+              <div className="w-6 h-6 border-2 border-(--ink) border-t-transparent rounded-full animate-spin" />
             </div>
           ) : filteredSessions.length === 0 ? (
-            <Card
-              className="text-center py-8 animate-fade-in"
-              style={{ animationDelay: '0.25s' }}
-            >
-              <CalendarIcon className="w-12 h-12 text-text-muted mx-auto mb-3" />
-              <p className="text-text-muted">
-                {selectedDate
-                  ? 'Aucune séance ce jour-là'
-                  : 'Aucune séance enregistrée'}
+            <div className="bg-(--off) rounded-2xl p-8 text-center animate-fade-in">
+              <CalendarIcon className="w-10 h-10 text-(--muted) mx-auto mb-3" />
+              <p className="text-(--muted) text-sm">
+                {selectedDate ? 'Aucune séance ce jour-là' : 'Aucune séance enregistrée'}
               </p>
-            </Card>
+            </div>
           ) : (
-            filteredSessions.map((session, index) => (
-              <Card
+            filteredSessions.map((session) => (
+              <div
                 key={session.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${0.25 + index * 0.03}s` }}
+                className="bg-(--off) rounded-2xl p-4 flex items-center gap-4"
               >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`
-                      w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0
-                      ${session.type === 'duofit' ? 'bg-primary/20' : 'bg-secondary/20'}
-                    `}
-                  >
-                    <Dumbbell
-                      className={`w-5 h-5 ${session.type === 'duofit' ? 'text-primary' : 'text-secondary'}`}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-white truncate">
-                      {session.workout_name}
-                    </h3>
-                    <p className="text-text-muted text-sm">
-                      {formatDate(session.date)}
-                    </p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-white font-semibold">+{session.points_earned} pts</p>
-                    <p className="text-text-muted text-sm">{session.duration} min</p>
-                  </div>
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                  session.type === 'duofit' ? 'bg-(--ink)' : 'bg-(--off) border border-(--line)'
+                }`}>
+                  <Dumbbell className={`w-5 h-5 ${session.type === 'duofit' ? 'text-(--accent)' : 'text-(--muted)'}`} />
                 </div>
-              </Card>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-syne font-bold text-sm text-(--ink) truncate">{session.workout_name}</h3>
+                  <p className="text-(--muted) text-xs mt-0.5">{formatDate(session.date)}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-syne font-bold text-sm text-(--accent-dark)">+{session.points_earned} pts</p>
+                  <p className="text-(--muted) text-xs">{session.duration} min</p>
+                </div>
+              </div>
             ))
           )}
         </div>

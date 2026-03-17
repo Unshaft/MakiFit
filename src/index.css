@@ -1,31 +1,40 @@
 @import "tailwindcss";
 
-/* MakiFit - Palette énergétique */
-@theme {
-  --color-primary: #FF6B35;
-  --color-primary-dark: #E85A2A;
-  --color-secondary: #FFD23F;
-  --color-accent: #EE4266;
-  --color-dark: #1A1A2E;
-  --color-dark-light: #25253D;
-  --color-surface: #2D2D4A;
-  --color-success: #4ADE80;
-  --color-text: #FFFFFF;
-  --color-text-muted: #A0A0B8;
+/* ─── Design System — Athletic Minimal ─── */
+:root {
+  /* CORE */
+  --white:        #ffffff;
+  --off:          #f7f6f3;
+  --ink:          #0f0f0f;
+  --ink2:         #3a3a3a;
+  --muted:        #9a9a9a;
+  --line:         #e8e6e1;
+
+  /* ACCENTS */
+  --accent:       #c8f545;
+  --accent-dark:  #8ab825;
+  --warning:      #f5a623;
+  --success:      #22c55e;
+  --bad:          #3b82f6;
+  --marianne:     #e8433a;
 }
 
-/* Base styles */
+/* Font utilities */
+.font-syne { font-family: 'Syne', sans-serif; }
+
+/* Base */
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
 html {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'DM Sans', sans-serif;
+  overscroll-behavior: none;
 }
 
 body {
-  background-color: var(--color-dark);
-  color: var(--color-text);
+  background-color: var(--white);
+  color: var(--ink);
   min-height: 100vh;
   min-height: 100dvh;
 }
@@ -41,89 +50,37 @@ body {
 }
 
 /* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--off); }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+
+/* ─── Animations ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-::-webkit-scrollbar-track {
-  background: var(--color-dark);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-surface);
-  border-radius: 2px;
-}
-
-/* Animations */
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(255, 107, 53, 0.6); }
-}
-
-@keyframes bounce-in {
-  0% { transform: scale(0.9); opacity: 0; }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
-}
-
-.animate-bounce-in {
-  animation: bounce-in 0.4s ease-out;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-/* Safe area for bottom navigation */
-.safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-/* Touch feedback for mobile */
-.touch-feedback {
-  transition: transform 0.1s ease-out, opacity 0.1s ease-out;
-}
-
-.touch-feedback:active {
-  transform: scale(0.97);
-  opacity: 0.9;
-}
-
-/* Prevent overscroll bounce on iOS */
-html {
-  overscroll-behavior: none;
-}
-
-/* Full screen fixed layout for workout screens (no scroll on iOS) */
-.fixed-screen {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  overscroll-behavior: none;
-  touch-action: manipulation;
-  background-color: var(--color-dark);
-}
-
-/* Smooth page transitions */
 @keyframes slide-in-right {
   from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes slide-in-up {
   from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rest-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.7; }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.3s ease both;
+}
+
+.animate-fade-in {
+  animation: fadeUp 0.3s ease both;
 }
 
 .animate-slide-in {
@@ -132,4 +89,50 @@ html {
 
 .animate-slide-up {
   animation: slide-in-up 0.25s ease-out;
+}
+
+.animate-rest-pulse {
+  animation: rest-pulse 1.5s ease-in-out infinite;
+}
+
+/* ─── Typography helpers ─── */
+.leading-hero { line-height: 1.1; }
+
+/* ─── Animation delays (stagger) ─── */
+.delay-1 { animation-delay: 0.04s; }
+.delay-2 { animation-delay: 0.08s; }
+.delay-3 { animation-delay: 0.12s; }
+.delay-4 { animation-delay: 0.16s; }
+.delay-5 { animation-delay: 0.20s; }
+.delay-6 { animation-delay: 0.24s; }
+.delay-7 { animation-delay: 0.28s; }
+.delay-8 { animation-delay: 0.32s; }
+.delay-9 { animation-delay: 0.36s; }
+.delay-10 { animation-delay: 0.40s; }
+
+/* ─── Utilities ─── */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Touch feedback */
+.touch-feedback {
+  transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+}
+
+.touch-feedback:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+
+/* Full screen fixed layout for workout screens */
+.fixed-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  background-color: var(--white);
 }

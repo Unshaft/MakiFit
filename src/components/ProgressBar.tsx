@@ -16,28 +16,28 @@ export function ProgressBar({
   const percentage = Math.min((value / max) * 100, 100);
 
   const colors = {
-    primary: 'bg-primary',
-    secondary: 'bg-secondary',
-    accent: 'bg-accent',
-    success: 'bg-success',
+    primary: 'bg-(--ink)',
+    secondary: 'bg-(--warning)',
+    accent: 'bg-(--accent)',
+    success: 'bg-(--success)',
   };
 
   const sizes = {
-    sm: 'h-2',
-    md: 'h-3',
-    lg: 'h-4',
+    sm: 'h-[5px]',
+    md: 'h-[6px]',
+    lg: 'h-[6px]',
   };
 
   return (
     <div className="w-full">
-      <div className={`w-full bg-dark-light rounded-full overflow-hidden ${sizes[size]}`}>
+      <div className={`w-full bg-(--line) rounded-full overflow-hidden ${sizes[size]}`}>
         <div
           className={`${colors[color]} ${sizes[size]} rounded-full transition-all duration-500 ease-out`}
           style={{ width: `${percentage}%` }}
         />
       </div>
       {showLabel && (
-        <div className="flex justify-between mt-1 text-sm text-text-muted">
+        <div className="flex justify-between mt-1 text-xs text-(--muted)">
           <span>{value} pts</span>
           <span>{max} pts</span>
         </div>

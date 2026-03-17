@@ -9,10 +9,10 @@ interface CircularProgressProps {
 }
 
 const colors: Record<string, string> = {
-  primary: '#FF6B35',
-  secondary: '#FFD23F',
-  accent: '#EE4266',
-  success: '#4ADE80',
+  primary: '#0f0f0f',   // --ink
+  secondary: '#f5a623', // --warning
+  accent: '#c8f545',    // --accent
+  success: '#22c55e',   // --success
 };
 
 export function CircularProgress({
@@ -29,21 +29,15 @@ export function CircularProgress({
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg
-        className="transform -rotate-90"
-        width={size}
-        height={size}
-      >
-        {/* Background circle */}
+      <svg className="transform -rotate-90" width={size} height={size}>
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#2D2D4A"
+          stroke="#e8e6e1"
           strokeWidth={strokeWidth}
         />
-        {/* Progress circle */}
         <circle
           cx={size / 2}
           cy={size / 2}

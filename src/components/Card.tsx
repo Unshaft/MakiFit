@@ -12,8 +12,8 @@ export function Card({ children, className = '', onClick, animate = false, style
   return (
     <div
       className={`
-        bg-surface rounded-3xl p-6
-        ${onClick ? 'cursor-pointer hover:bg-dark-light active:scale-98 transition-all' : ''}
+        bg-(--off) rounded-2xl p-5
+        ${onClick ? 'cursor-pointer active:scale-[0.98] transition-all touch-feedback' : ''}
         ${animate ? 'animate-fade-in' : ''}
         ${className}
       `}

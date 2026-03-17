@@ -13,11 +13,7 @@ export function ProfileSelect() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <img
-          src="/web-app-manifest-192x192.png"
-          alt="MakiFit"
-          className="w-24 h-24 animate-pulse"
-        />
+        <img src="/web-app-manifest-192x192.png" alt="MakiFit" className="w-20 h-20 rounded-2xl animate-pulse" />
       </div>
     );
   }
@@ -26,66 +22,60 @@ export function ProfileSelect() {
   const killian = users.find(u => u.profile === 'killian');
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center px-6">
       {/* Logo */}
-      <div className="mb-10 text-center animate-bounce-in">
-        <img
-          src="/web-app-manifest-192x192.png"
-          alt="MakiFit"
-          className="w-28 h-28 mx-auto mb-4 drop-shadow-lg"
-        />
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          MakiFit
-        </h1>
-        <p className="text-text-muted mt-2">Qui s'entraîne aujourd'hui ?</p>
+      <div className="mb-12 text-center animate-fade-in">
+        <img src="/web-app-manifest-192x192.png" alt="MakiFit" className="w-20 h-20 mx-auto mb-5 rounded-3xl" />
+        <h1 className="font-syne font-extrabold text-4xl text-(--ink) leading-hero">MakiFit</h1>
+        <p className="text-(--muted) mt-2 text-sm">Qui s'entraîne aujourd'hui ?</p>
       </div>
 
-      {/* Profile buttons */}
-      <div className="w-full max-w-sm space-y-4">
+      <div className="w-full max-w-sm space-y-3">
+        {/* Marianne */}
         <button
+          type="button"
           onClick={() => handleSelectProfile('marianne')}
-          className="w-full p-6 bg-surface rounded-3xl text-left transition-all hover:scale-102 hover:bg-dark-light active:scale-98 animate-fade-in"
-          style={{ animationDelay: '0.1s' }}
+          className="w-full p-5 bg-(--off) rounded-2xl text-left touch-feedback animate-fade-in delay-3 transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-2xl flex items-center justify-center text-3xl">
-              💪
+            <div className="w-14 h-14 bg-(--marianne) rounded-2xl flex items-center justify-center">
+              <span className="font-syne font-extrabold text-2xl text-white">M</span>
             </div>
             <div className="flex-1">
-              <h2 className="text-2xl font-bold text-white">{marianne?.name || 'Marianne'}</h2>
-              <p className="text-text-muted text-sm mt-1">Remise en forme</p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-secondary font-bold">{marianne?.streak || 0}</span>
-                <span className="text-text-muted text-sm">jours de streak</span>
+              <h2 className="font-syne font-bold text-xl text-(--ink)">{marianne?.name || 'Marianne'}</h2>
+              <p className="text-(--muted) text-sm mt-0.5">Remise en forme</p>
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <span className="font-syne font-bold text-sm text-(--ink)">{marianne?.streak || 0}</span>
+                <span className="text-(--muted) text-xs">jours de streak</span>
               </div>
             </div>
           </div>
         </button>
 
+        {/* Killian */}
         <button
+          type="button"
           onClick={() => handleSelectProfile('killian')}
-          className="w-full p-6 bg-surface rounded-3xl text-left transition-all hover:scale-102 hover:bg-dark-light active:scale-98 animate-fade-in"
-          style={{ animationDelay: '0.2s' }}
+          className="w-full p-5 bg-(--off) rounded-2xl text-left touch-feedback animate-fade-in delay-5 transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-secondary to-primary rounded-2xl flex items-center justify-center text-3xl">
-              🏸
+            <div className="w-14 h-14 bg-(--ink) rounded-2xl flex items-center justify-center">
+              <span className="font-syne font-extrabold text-2xl text-(--accent)">K</span>
             </div>
             <div className="flex-1">
-              <h2 className="text-2xl font-bold text-white">{killian?.name || 'Killian'}</h2>
-              <p className="text-text-muted text-sm mt-1">Performance badminton</p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-secondary font-bold">{killian?.streak || 0}</span>
-                <span className="text-text-muted text-sm">jours de streak</span>
+              <h2 className="font-syne font-bold text-xl text-(--ink)">{killian?.name || 'Killian'}</h2>
+              <p className="text-(--muted) text-sm mt-0.5">Performance badminton</p>
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <span className="font-syne font-bold text-sm text-(--ink)">{killian?.streak || 0}</span>
+                <span className="text-(--muted) text-xs">jours de streak</span>
               </div>
             </div>
           </div>
         </button>
       </div>
 
-      {/* Footer */}
-      <p className="text-text-muted text-sm mt-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-        Prêts à bouger ensemble ? 🔥
+      <p className="text-(--muted) text-xs mt-10 animate-fade-in delay-8">
+        Prêts à bouger ensemble
       </p>
     </div>
   );
